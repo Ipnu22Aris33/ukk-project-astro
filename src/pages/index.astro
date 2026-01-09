@@ -1,0 +1,37 @@
+---
+import { Button, Icon, Rating } from "webcoreui/astro";
+
+import Layout from "@components/Layout.astro";
+---
+
+<Layout>
+  <h1 class="flex center md">
+    Welcome to <img src="logo.svg" width="160" />
+    Rating: <Rating
+      score={2}
+      total={5}
+      showEmpty
+	  emptyColor="#fff"
+      reviewCount={234}
+      reviewLink="/product/123/reviews"
+      reviewTarget="_blank"
+    />
+  </h1>
+  <p>
+    Edit <code>pages/index.astro</code> to get started. For documentation, visit <a
+      href="https://webcoreui.dev"
+      target="_blank">webcoreui.dev</a
+    >
+  </p>
+  <div class="flex justify-center xs">
+    <Button href="https://webcoreui.dev" target="_blank"> Get Started </Button>
+    <Button
+      href="https://github.com/Frontendland/webcoreui"
+      target="_blank"
+      theme="secondary"
+    >
+      <Icon type="github" size={20} />
+      GitHub
+    </Button>
+  </div>
+</Layout>
