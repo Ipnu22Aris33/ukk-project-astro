@@ -4,11 +4,17 @@
         "baseUrl": ".",
         "strictNullChecks": true,
         "paths": {
+            "@/": [
+                "src/*"
+            ],
+            "@server/*": [
+                "src/server/*"
+            ],
             "@components/*": [
                 "src/components/*"
             ],
-            "@blocks/*": [
-                "src/blocks/*"
+            "@styles/*": [
+                "src/styles/*"
             ]
         }
     }
