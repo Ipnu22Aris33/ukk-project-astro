@@ -2,12 +2,12 @@
 const currentPath = Astro.url.pathname;
 
 const navLinks = [
-  { name: "Dashboard", icon: "house-door", href: "/dashboard" },
-  { name: "Analytics", icon: "bar-chart", href: "/analytics" },
-  { name: "Members", icon: "people", href: "/members" },
-  { name: "Books", icon: "book", href: "/books" },
-  { name: "Reports", icon: "file-text", href: "/reports" },
-  { name: "Settings", icon: "gear", href: "/settings" },
+  { name: "Dashboard", icon: "house-door", href: "/admin/dashboard" },
+  { name: "Analytics", icon: "bar-chart", href: "/admin/analytics" },
+  { name: "Members", icon: "people", href: "/admin/members" },
+  { name: "Books", icon: "book", href: "/admin/books" },
+  { name: "Reports", icon: "file-text", href: "/admin/reports" },
+  { name: "Settings", icon: "gear", href: "/admin/settings" },
 ];
 
 const isActive = (href: string) =>
