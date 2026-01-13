@@ -1,0 +1,60 @@
+---
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { name: "Dashboard", icon: "house-door", href: "/dashboard" },
+  { name: "Analytics", icon: "bar-chart", href: "/analytics" },
+  { name: "Members", icon: "people", href: "/members" },
+  { name: "Books", icon: "book", href: "/books" },
+  { name: "Reports", icon: "file-text", href: "/reports" },
+  { name: "Settings", icon: "gear", href: "/settings" },
+];
+
+const isActive = (href: string) =>
+  currentPath === href || (href !== "/" && currentPath.startsWith(href));
+---
+
+<aside class="d-flex flex-column p-3 border-end bg-body">
+  <!-- LOGO -->
+  <div class="d-flex align-items-center gap-2 d-none d-md-inline">
+    <i class="bi bi-speedometer2 fs-4 text-primary"></i>
+    <span>Dashboard</span>
+  </div>
+
+  <hr class="d-none d-md-inline" />
+
+  <!-- NAV -->
+  <ul class="nav nav-pills flex-column gap-1 mb-auto">
+    {
+      navLinks.map((link) => (
+        <li class="nav-item">
+          <a
+            href={link.href}
+            class={`nav-link d-flex align-items-center gap-2 ${
+              isActive(link.href) ? "active" : "link-body-emphasis"
+            }`}
+          >
+            <i class={`bi bi-${link.icon} fs-5`} />
+            <span>{link.name}</span>
+          </a>
+        </li>
+      ))
+    }
+  </ul>
+
+  <hr />
+
+  <!-- USER -->
+  <div class="d-flex align-items-center gap-2">
+    <div
+      class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+      style="width:32px;height:32px"
+    >
+      AU
+    </div>
+    <div>
+      <strong class="small">Admin User</strong>
+      <div class="text-muted small">admin@example.com</div>
+    </div>
+  </div>
+</aside>

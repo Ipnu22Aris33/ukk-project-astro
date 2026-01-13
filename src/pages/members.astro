@@ -1,0 +1,9 @@
+---
+import DashboardLayout from "@layouts/DashboardLayout.astro";
+import MembersTable from "@components/features/MembersTable";
+---
+
+<DashboardLayout>
+  <h1>Members</h1>
+  <MembersTable client:only="react" />
+</DashboardLayout>

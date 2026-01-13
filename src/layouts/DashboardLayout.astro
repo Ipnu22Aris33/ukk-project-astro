@@ -1,0 +1,43 @@
+---
+import BaseLayout from "./BaseLayout.astro";
+import Header from "@components/layouts/Header.astro";
+import Sidebar from "@components/layouts/Sidebar.astro";
+import Content from "@components/layouts/Content.astro";
+---
+
+<BaseLayout>
+  <div class="d-flex">
+    <!-- DESKTOP SIDEBAR -->
+    <div class="d-none d-md-block">
+      <div id="sidebarDesktop" class="collapse collapse-horizontal show">
+        <div class="border-end bg-body" style="width:280px; min-height:100vh">
+          <Sidebar />
+        </div>
+      </div>
+    </div>
+
+    <!-- MOBILE OFFCANVAS -->
+    <div class="offcanvas offcanvas-start" tabindex="-1" id="sidebarMobile">
+      <div class="offcanvas-header">
+        <div class="d-flex align-items-center gap-2">
+          <i class="bi bi-speedometer2 fs-4 text-primary"></i>
+          <span>Dashboard</span>
+        </div>
+        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
+        ></button>
+      </div>
+
+      <div class="offcanvas-body p-0">
+        <Sidebar />
+      </div>
+    </div>
+
+    <!-- MAIN -->
+    <div class="d-flex flex-column flex-grow-1 min-vh-100">
+      <Header />
+      <Content>
+        <slot />
+      </Content>
+    </div>
+  </div>
+</BaseLayout>
