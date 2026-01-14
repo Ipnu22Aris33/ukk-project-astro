@@ -1,9 +1,8 @@
 ---
 import DashboardLayout from "@layouts/DashboardLayout.astro";
-import MembersTable from "@components/features/MembersTable";
+import AdminDashboardPage from "@components/features/AdminDashboardPage";
 ---
 
 <DashboardLayout>
-  <h1>Members</h1>
-  <MembersTable client:load />
+  <AdminDashboardPage client:only="react" />
 </DashboardLayout>

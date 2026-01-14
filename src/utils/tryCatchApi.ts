@@ -2,26 +2,18 @@ import { HttpError } from "@utils/httpError";
 import { ZodError } from "zod";
 import type { ApiResponse } from "./apiResponse";
 
-export const tryCatchApi = async <T>(
-  fn: () => Promise<ApiResponse<T>>
-): Promise<Response> => {
+export const tryCatchApi = async <T>(fn: () => Promise<ApiResponse<T> | Response>): Promise<Response> => {
   try {
     const result = await fn();
 
-    if (result.status === 204) {
-      return new Response(null, { status: 204 });
+    if (result instanceof Response) {
+      return result;
     }
 
-    return Response.json(
-      {
-        success: result.success,
-        message: result.message,
-        data: result.data,
-      },
-      {
-        status: result.status ?? 200,
-      }
-    );
+    return new Response(JSON.stringify(result), {
+      status: 200,
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (err: any) {
     console.error(err);
     if (err instanceof ZodError) {

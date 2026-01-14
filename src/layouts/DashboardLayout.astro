@@ -1,17 +1,76 @@
 ---
 import BaseLayout from "./BaseLayout.astro";
-import Header from "@components/layouts/Header.astro";
-import Sidebar from "@components/layouts/Sidebar.astro";
-import Content from "@components/layouts/Content.astro";
+
+const currentPath = Astro.url.pathname;
+
+const navLinks = [
+  { name: "Dashboard", icon: "house-door", href: "/admin/dashboard" },
+  { name: "Analytics", icon: "bar-chart", href: "/admin/analytics" },
+  { name: "Members", icon: "people", href: "/admin/members" },
+  { name: "Books", icon: "book", href: "/admin/books" },
+  { name: "Reports", icon: "file-text", href: "/admin/reports" },
+  { name: "Settings", icon: "gear", href: "/admin/settings" },
+];
+
+const isActive = (href: string) => currentPath === href || (href !== "/" && currentPath.startsWith(href));
 ---
 
 <BaseLayout>
-  <div class="d-flex">
+  <div class="d-flex" style="height:100vh; overflow:hidden">
     <!-- DESKTOP SIDEBAR -->
     <div class="d-none d-md-block">
-      <div id="sidebarDesktop" class="collapse collapse-horizontal show">
-        <div class="border-end bg-body" style="width:280px; min-height:100vh">
-          <Sidebar />
+      <div class="position-sticky" style="top:0; height:100vh;">
+        <div id="sidebarDesktop" class="collapse collapse-horizontal show">
+          <div class="border-end bg-body" style="width:280px; height:100vh;">
+            <!-- SIDEBAR -->
+            <aside class="d-flex flex-column p-3 border-end bg-body h-100">
+              <!-- LOGO -->
+              <div class="d-flex align-items-center gap-2 d-none d-md-inline">
+                <i class="bi bi-speedometer2 fs-4 text-primary"></i>
+                <span>Dashboard</span>
+              </div>
+
+              <hr class="d-none d-md-inline" />
+
+              <!-- NAV -->
+              <ul class="nav nav-pills flex-column gap-1">
+                {
+                  navLinks.map((link) => (
+                    <li class="nav-item">
+                      <a
+                        aria-label="nav-links"
+                        href={link.href}
+                        class={`nav-link d-flex align-items-center gap-2 ${isActive(link.href) ? "active" : "link-body-emphasis"}`}
+                      >
+                        <i class={`bi bi-${link.icon} fs-5`} />
+                        <span>{link.name}</span>
+                      </a>
+                    </li>
+                  ))
+                }
+              </ul>
+
+              <!-- PUSH TO BOTTOM -->
+              <div class="mt-auto">
+                <hr />
+
+                <!-- USER -->
+                <div class="d-flex align-items-center gap-2">
+                  <div
+                    class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                    style="width:32px;height:32px"
+                  >
+                    AU
+                  </div>
+                  <div>
+                    <strong class="small">Admin User</strong>
+                    <div class="text-muted small">admin@example.com</div>
+                  </div>
+                </div>
+              </div>
+            </aside>
+            <!-- SIDEBAR END -->
+          </div>
         </div>
       </div>
     </div>
@@ -23,21 +82,92 @@ import Content from "@components/layouts/Content.astro";
           <i class="bi bi-speedometer2 fs-4 text-primary"></i>
           <span>Dashboard</span>
         </div>
-        <button type="button" class="btn-close" data-bs-dismiss="offcanvas"
-        ></button>
+        <button class="btn-close" data-bs-dismiss="offcanvas"></button>
       </div>
-
       <div class="offcanvas-body p-0">
-        <Sidebar />
+        <!-- SIDEBAR MOBILE -->
+        <aside class="d-flex flex-column p-3 border-end bg-body h-100">
+          <!-- LOGO -->
+          <div class="d-flex align-items-center gap-2 d-none d-md-inline">
+            <i class="bi bi-speedometer2 fs-4 text-primary"></i>
+            <span>Dashboard</span>
+          </div>
+
+          <hr class="d-none d-md-inline" />
+
+          <!-- NAV -->
+          <ul class="nav nav-pills flex-column gap-1">
+            {
+              navLinks.map((link) => (
+                <li class="nav-item">
+                  <a
+                    aria-label="nav-links"
+                    href={link.href}
+                    class={`nav-link d-flex align-items-center gap-2 ${isActive(link.href) ? "active" : "link-body-emphasis"}`}
+                  >
+                    <i class={`bi bi-${link.icon} fs-5`} />
+                    <span>{link.name}</span>
+                  </a>
+                </li>
+              ))
+            }
+          </ul>
+
+          <!-- PUSH TO BOTTOM -->
+          <div class="mt-auto">
+            <hr />
+
+            <!-- USER -->
+            <div class="d-flex align-items-center gap-2">
+              <div
+                class="rounded-circle bg-primary text-white d-flex align-items-center justify-content-center"
+                style="width:32px;height:32px"
+              >
+                AU
+              </div>
+              <div>
+                <strong class="small">Admin User</strong>
+                <div class="text-muted small">admin@example.com</div>
+              </div>
+            </div>
+          </div>
+        </aside>
+        <!-- SIDEBAR MOBILE END -->
       </div>
     </div>
 
     <!-- MAIN -->
-    <div class="d-flex flex-column flex-grow-1 min-vh-100">
-      <Header />
-      <Content>
-        <slot />
-      </Content>
+    <div class="d-flex flex-column flex-grow-1" style="min-width:0">
+      <!-- HEADER (FIXED HEIGHT) -->
+      <header class="d-flex align-items-center px-3 border-bottom bg-body sticky-top" style="height:56px">
+        <!-- DESKTOP: collapse -->
+        <button class="btn btn-link p-0 d-none d-md-inline-flex" data-bs-toggle="collapse" data-bs-target="#sidebarDesktop">
+          <i class="bi bi-layout-sidebar-inset fs-4"></i>
+        </button>
+
+        <!-- MOBILE: offcanvas -->
+        <button class="btn btn-link p-0 d-md-none" data-bs-toggle="offcanvas" data-bs-target="#sidebarMobile">
+          <i class="bi bi-list fs-4"></i>
+        </button>
+
+        <span class="ms-3 fw-semibold">Dashboard</span>
+      </header>
+
+      <!-- CONTENT (THE ONLY SCROLL AREA) -->
+      <div class="flex-grow-1 overflow-auto scrollbar-thin">
+        <main class="flex-grow-1 bg-body-secondary">
+          <div class="p-3 h-100">
+            <div class="h-100">
+              <div
+                class="border rounded-3 bg-body shadow-sm p-3 h-100 overflow-auto"
+                style="min-height: calc(100vh - 56px - 2rem);"
+              >
+                <slot />
+              </div>
+            </div>
+          </div>
+        </main>
+      </div>
     </div>
   </div>
 </BaseLayout>

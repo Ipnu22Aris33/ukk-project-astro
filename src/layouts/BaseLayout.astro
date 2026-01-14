@@ -2,11 +2,11 @@
 import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../styles/global.css";
-import AppProviders from "@components/providers/AppProvider";
+import { ClientRouter } from "astro:transitions";
 ---
 
 <!doctype html>
-<html lang="en">
+<html lang="en" data-bs-theme="light">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width" />
@@ -15,9 +15,8 @@ import AppProviders from "@components/providers/AppProvider";
     <title>Astro Basics</title>
   </head>
   <body>
-    <AppProviders client:only="react">
-      <slot />
-    </AppProviders>
+    <ClientRouter />
+    <slot />
     <script>
       if (typeof window !== "undefined") {
         import("bootstrap")

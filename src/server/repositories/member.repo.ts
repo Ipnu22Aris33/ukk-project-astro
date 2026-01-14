@@ -9,10 +9,7 @@ export const MemberRepo = {
     );
     const insertId = (result as any).insertId;
 
-    const [rows] = await mysqlPool.query(
-      "SELECT * FROM members WHERE id_member = ?",
-      [insertId]
-    );
+    const [rows] = await mysqlPool.query("SELECT * FROM members WHERE id_member = ?", [insertId]);
 
     return (rows as any[])[0];
   },
@@ -26,8 +23,7 @@ export const MemberRepo = {
       values.push(`%${filter.search}%`);
     }
 
-    const where =
-      conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
+    const where = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "";
 
     const sql = `SELECT * FROM members ${where}`;
 
@@ -36,10 +32,12 @@ export const MemberRepo = {
   },
 
   async getById(id: string) {
-    const [rows] = await mysqlPool.query(
-      "SELECT * FROM members WHERE id_member = ?",
-      [id]
-    );
+    const [rows] = await mysqlPool.query("SELECT * FROM members WHERE id_member = ?", [id]);
+    return (rows as Member[])[0] ?? null;
+  },
+
+  async getByEmail(email: string) {
+    const [rows] = await mysqlPool.query("SELECT * FROM members WHERE email = ?", [email]);
     return (rows as Member[])[0] ?? null;
   },
 
@@ -50,19 +48,13 @@ export const MemberRepo = {
     );
     if ((result as any).affectedRows === 0) return null;
 
-    const [rows] = await mysqlPool.query(
-      "SELECT * FROM members WHERE id_member = ?",
-      [id]
-    );
+    const [rows] = await mysqlPool.query("SELECT * FROM members WHERE id_member = ?", [id]);
 
     return (rows as any[])[0];
   },
 
   async delete(id: string) {
-    const [result] = await mysqlPool.execute(
-      "DELETE FROM members WHERE id_member = ?",
-      [id]
-    );
+    const [result] = await mysqlPool.execute("DELETE FROM members WHERE id_member = ?", [id]);
     return (result as any).affectedRows > 0;
   },
 };
