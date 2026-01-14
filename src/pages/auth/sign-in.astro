@@ -1,7 +1,8 @@
 ---
 import AuthLayout from "@layouts/AuthLayout.astro";
+import SignInPage from "@components/features/SignInPage";
 ---
 
 <AuthLayout>
-  <h1>sign in</h1>
+  <SignInPage client:only="react" />
 </AuthLayout>

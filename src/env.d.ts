@@ -3,7 +3,7 @@
 declare namespace App {
   interface Locals {
     member?: {
-      memberId: string | number;
+      memberId: string;
       email: string;
       role: "admin" | "user";
     };

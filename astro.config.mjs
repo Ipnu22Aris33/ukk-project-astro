@@ -9,6 +9,10 @@ import node from "@astrojs/node";
 export default defineConfig({
   prefetch: true,
   output: "server",
+  server: {
+    port: 8080,
+    host: true,
+  },
 
   build: {
     format: "directory",
