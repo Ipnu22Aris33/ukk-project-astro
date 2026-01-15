@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { AuthService } from "@server/services/auth.service";
+import { UserService } from "@server/services/user.service";
 
 export const onRequest = defineMiddleware(async ({ request, url, locals }, next) => {
   const publicPaths = ["/auth", "/api/auth"];
@@ -15,14 +15,14 @@ export const onRequest = defineMiddleware(async ({ request, url, locals }, next)
   }
 
   try {
-    const decoded = AuthService.verifyToken(token);
+    const decoded = UserService.verifyToken(token);
 
-    locals.member = decoded;
+    locals.user = decoded;
   } catch {
     return Response.redirect(new URL("/auth/sign-in", url), 302);
   }
 
-  if (url.pathname.startsWith("/admin") && locals.member.role !== "admin") {
+  if (url.pathname.startsWith("/admin") && locals.user.role !== "admin") {
     return new Response("Forbidden", { status: 403 });
   }
 

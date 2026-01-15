@@ -1,6 +1,19 @@
-import { Toaster } from "sonner";
+import { Toaster, toast } from "sonner";
+import { useEffect } from "react";
 
 export default function ToastProvider() {
+  useEffect(() => {
+    const type = sessionStorage.getItem("toast");
+
+    if (!type) return;
+
+    if (type === "login-success") {
+      toast.success("Berhasil login 👋");
+    }
+
+    sessionStorage.removeItem("toast");
+  }, []);
+
   return (
     <Toaster
       position="top-center"

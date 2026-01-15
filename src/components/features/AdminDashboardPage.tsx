@@ -5,9 +5,17 @@ import AppProviders from "@components/providers/AppProviders";
 import type { Member } from "@server/models/member";
 import { toast } from "sonner";
 
-/* =======================
-   TABLE SKELETON
-======================= */
+export default function AdminDashboardPage() {
+  return (
+    <AppProviders>
+      <Container className="my-4">
+        <h2>Admin Dashboard</h2>
+        <DashboardContent />
+      </Container>
+    </AppProviders>
+  );
+}
+
 function TableSkeleton({ rows = 5 }) {
   return (
     <Table bordered hover responsive className="mt-3">
@@ -39,9 +47,6 @@ function TableSkeleton({ rows = 5 }) {
   );
 }
 
-/* =======================
-   DASHBOARD CONTENT
-======================= */
 function DashboardContent() {
   const [search, setSearch] = useState("");
 
@@ -58,7 +63,7 @@ function DashboardContent() {
   const filteredData = useMemo(() => {
     if (!data) return [];
     return data.filter((member) =>
-      `${member.name} ${member.email} ${member.class} ${member.major}`.toLowerCase().includes(search.toLowerCase())
+      `${member.name} ${member.address} ${member.class} ${member.major}`.toLowerCase().includes(search.toLowerCase())
     );
   }, [data, search]);
 
@@ -113,10 +118,10 @@ function DashboardContent() {
             <tr key={member.id_member}>
               <td>{member.id_member}</td>
               <td>{member.name}</td>
-              <td>{member.email}</td>
+              <td>{member.address}</td>
               <td>{member.class}</td>
               <td>{member.major}</td>
-              <td>{member.role}</td>
+              <td>{member.phone}</td>
               <td className="text-end">
                 <Dropdown align="end">
                   <Dropdown.Toggle size="sm" variant="light" className="border">
@@ -145,19 +150,5 @@ function DashboardContent() {
         </tbody>
       </Table>
     </>
-  );
-}
-
-/* =======================
-   PAGE
-======================= */
-export default function AdminDashboardPage() {
-  return (
-    <AppProviders>
-      <Container className="my-4">
-        <h2>Admin Dashboard</h2>
-        <DashboardContent />
-      </Container>
-    </AppProviders>
   );
 }

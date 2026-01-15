@@ -2,15 +2,15 @@
 export const prerender = false;
 
 // Ambil user dari middleware
-const member = Astro.locals.member;
+const user = Astro.locals.user;
 
 // Belum login
-if (!member) {
+if (!user) {
   return Astro.redirect("/auth/sign-in");
 }
 
 // Sudah login → redirect berdasarkan role
-if (member.role === "admin") {
+if (user.role === "admin") {
   return Astro.redirect("/admin");
 }
 

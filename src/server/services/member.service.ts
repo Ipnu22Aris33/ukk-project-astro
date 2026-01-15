@@ -28,7 +28,7 @@ export const MembersService = {
     return ok(data, "data ada");
   },
 
-  async getAll(filter: { search?: string | null; category?: string | null }) {
+  async getAll(filter: { search?: string | null }) {
     const datas = await MemberRepo.getAll(filter);
     return ok(datas, "Data buku berhasil diambil");
   },

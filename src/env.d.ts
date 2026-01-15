@@ -2,10 +2,10 @@
 
 declare namespace App {
   interface Locals {
-    member?: {
-      memberId: string;
+    user?: {
+      userId: string;
       email: string;
-      role: "admin" | "user";
+      role: "admin" | "member";
     };
   }
 }

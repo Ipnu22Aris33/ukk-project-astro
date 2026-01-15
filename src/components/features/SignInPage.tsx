@@ -2,6 +2,7 @@ import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import { Container, Row, Col, Card, Form, Button, Alert } from "react-bootstrap";
 import AppProviders from "@components/providers/AppProviders";
+import { InternalServerError } from "@utils/httpError";
 
 /* =======================
    SIGN-IN FORM
@@ -21,13 +22,13 @@ function SignInForm() {
 
       if (!res.ok) {
         const err = await res.json();
-        throw new Error(err.message || "Login failed");
+        throw new InternalServerError(err.message || "Login failed");
       }
 
       return res.json();
     },
     onSuccess: () => {
-      // redirect setelah login, middleware akan handle role
+      sessionStorage.setItem("toast", "login-success");
       window.location.href = "/";
     },
     onError: (err: any) => {
@@ -50,15 +51,15 @@ function SignInForm() {
 
             {error && <Alert variant="danger">{error}</Alert>}
 
-            <Form onSubmit={handleSubmit}>
+            <Form onSubmit={handleSubmit} autoComplete="off">
               <Form.Group className="mb-3" controlId="email">
                 <Form.Label>Email</Form.Label>
                 <Form.Control
                   type="email"
                   placeholder="email@example.com"
+                  autoComplete="pak"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  required
                 />
               </Form.Group>
 
@@ -69,19 +70,10 @@ function SignInForm() {
                     Forgot password?
                   </a>
                 </Form.Label>
-                <Form.Control
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                />
+                <Form.Control type="password" autoComplete="tw" value={password} onChange={(e) => setPassword(e.target.value)} />
               </Form.Group>
 
-              <Button
-                type="submit"
-                className="w-100"
-                disabled={mutation.isPending}
-              >
+              <Button type="submit" className="w-100" disabled={mutation.isPending}>
                 {mutation.isPending ? "Signing in..." : "Sign In"}
               </Button>
             </Form>

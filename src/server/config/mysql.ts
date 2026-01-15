@@ -5,5 +5,5 @@ export const mysqlPool = createPool({
   user: import.meta.env.MYSQL_USERNAME,
   password: import.meta.env.MYSQL_PASSWORD,
   port: Number(import.meta.env.MYSQL_PORT) || 3306,
-  database: import.meta.env.MYSQL_DB
+  database: import.meta.env.MYSQL_DB,
 });
