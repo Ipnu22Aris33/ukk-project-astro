@@ -23,13 +23,13 @@ export const UserRepo = {
 
     const where = conditions.length ? `WHERE ${conditions.join(" AND ")}` : "";
 
-    const [rows] = await mysqlPool.query(`SELECT id_user, name, email, role FROM users ${where}`, values);
+    const [rows] = await mysqlPool.query(`SELECT * FROM users ${where}`, values);
 
     return rows as User[];
   },
 
   async getById(id: string) {
-    const [rows] = await mysqlPool.query(`SELECT id_user, name, email, role FROM users WHERE id_user = ?`, [id]);
+    const [rows] = await mysqlPool.query(`SELECT id_user, username, email, role FROM users WHERE id_user = ?`, [id]);
 
     return (rows as User[])[0] ?? null;
   },
@@ -74,6 +74,40 @@ export const UserRepo = {
     const [result] = await mysqlPool.execute("UPDATE users SET sign_in_at = NOW() WHERE id_user = ?", [id]);
 
     return (result as any).affectedRows > 0;
+  },
+
+  async getUserProfileById(id: string) {
+    const [rows] = await mysqlPool.query(
+      `
+    SELECT
+      u.id_user,
+      u.username,
+      u.email,
+      u.password,
+      u.role,
+      u.sign_up_at,
+      u.sign_in_at,
+      u.sign_out_at,
+
+      m.id_member,
+      m.user_id,
+      m.name,
+      m.phone,
+      m.address,
+      m.class,
+      m.major
+
+    FROM users u
+    LEFT JOIN members m
+      ON m.user_id = u.id_user
+      AND u.role = 'member'
+
+    WHERE u.id_user = ?
+    `,
+      [id]
+    );
+
+    return (rows as any[])[0] ?? null;
   },
 
   async updateSignOut(id: string) {

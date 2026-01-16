@@ -58,21 +58,7 @@ export const MemberRepo = {
   // GET MEMBER BY ID
   // =========================
   async getById(id: string | number) {
-    const [rows] = await mysqlPool.query(
-      `
-      SELECT 
-        id_member,
-        user_id,
-        name,
-        phone,
-        address,
-        class,
-        major
-      FROM members
-      WHERE id_member = ?
-      `,
-      [id]
-    );
+    const [rows] = await mysqlPool.query(`SELECT * FROM members WHERE id_member = ? `, [id]);
 
     return (rows as Member[])[0] ?? null;
   },
@@ -84,13 +70,7 @@ export const MemberRepo = {
     const [rows] = await mysqlPool.query(
       `
       SELECT 
-        id_member,
-        user_id,
-        name,
-        phone,
-        address,
-        class,
-        major
+        *
       FROM members
       WHERE user_id = ?
       `,
@@ -98,33 +78,6 @@ export const MemberRepo = {
     );
 
     return (rows as Member[])[0] ?? null;
-  },
-
-  // =========================
-  // GET FULL PROFILE (JOIN USERS)
-  // =========================
-  async getProfileByUserId(userId: string) {
-    const [rows] = await mysqlPool.query(
-      `
-      SELECT
-        m.id_member,
-        m.name,
-        m.phone,
-        m.address,
-        m.class,
-        m.major,
-        u.id_user,
-        u.username,
-        u.email,
-        u.role
-      FROM members m
-      JOIN users u ON u.id_user = m.user_id
-      WHERE u.id_user = ?
-      `,
-      [userId]
-    );
-
-    return (rows as any[])[0] ?? null;
   },
 
   // =========================
@@ -159,14 +112,7 @@ export const MemberRepo = {
 
     values.push(id);
 
-    const [result] = await mysqlPool.execute(
-      `
-      UPDATE members 
-      SET ${fields.join(", ")}
-      WHERE id_member = ?
-      `,
-      values
-    );
+    const [result] = await mysqlPool.execute(`UPDATE members SET ${fields.join(", ")} WHERE id_member = ?`, values);
 
     if ((result as any).affectedRows === 0) return null;
 

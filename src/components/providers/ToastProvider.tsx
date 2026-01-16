@@ -1,17 +1,30 @@
 import { Toaster, toast } from "sonner";
 import { useEffect } from "react";
+import { TOAST_MAP, type ToastEvent } from "@constants/toastType";
 
 export default function ToastProvider() {
   useEffect(() => {
-    const type = sessionStorage.getItem("toast");
+    const raw = sessionStorage.getItem("toast");
+    if (!raw) return;
 
-    if (!type) return;
+    try {
+      const { event, options } = JSON.parse(raw) as {
+        event: ToastEvent;
+        options?: {
+          title?: string;
+          description?: string;
+        };
+      };
 
-    if (type === "login-success") {
-      toast.success("Berhasil login 👋");
+      const toastConfig = TOAST_MAP[event];
+      if (!toastConfig) return;
+
+      toast[toastConfig.type](options?.title ?? toastConfig.title, {
+        description: options?.description ?? toastConfig.description,
+      });
+    } finally {
+      sessionStorage.removeItem("toast");
     }
-
-    sessionStorage.removeItem("toast");
   }, []);
 
   return (
@@ -24,9 +37,8 @@ export default function ToastProvider() {
       duration={4000}
       gap={8}
       toastOptions={{
-        style: {
-          fontSize: "14px",
-        },
+        style: { fontSize: "14px" },
+        classNames: {},
       }}
     />
   );

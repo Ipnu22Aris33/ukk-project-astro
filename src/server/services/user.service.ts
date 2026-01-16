@@ -20,7 +20,7 @@ type AuthPayload = {
 
 export const UserService = {
   async getMyProfile(userId: string) {
-    const user = await UserRepo.getById(userId);
+    const user = await UserRepo.getUserProfileById(userId);
 
     if (!user) {
       throw new NotFound("User not found");

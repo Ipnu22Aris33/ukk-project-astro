@@ -3,7 +3,7 @@ import "bootstrap/dist/css/bootstrap.min.css";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "../styles/global.css";
 import { ClientRouter } from "astro:transitions";
-import GlobalProviders from "@components/providers/GlobalProvider";
+import ToastProvider from "@components/providers/ToastProvider";
 ---
 
 <!doctype html>
@@ -17,7 +17,8 @@ import GlobalProviders from "@components/providers/GlobalProvider";
   </head>
   <body>
     <ClientRouter />
-    <GlobalProviders client:load />
+    <ToastProvider client:load />
+
     <slot />
     <script>
       if (typeof window !== "undefined") {

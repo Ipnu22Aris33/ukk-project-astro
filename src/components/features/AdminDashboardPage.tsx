@@ -1,20 +1,8 @@
-import { Table, Alert, Container, Placeholder, Form, Button, InputGroup, Dropdown } from "react-bootstrap";
-import { useQuery } from "@tanstack/react-query";
 import { useState, useMemo } from "react";
-import AppProviders from "@components/providers/AppProviders";
-import type { Member } from "@server/models/member";
+import { Table, InputGroup, Form, Button, Dropdown, Placeholder } from "react-bootstrap";
+import { useFetch } from "@hooks/useFetch";
 import { toast } from "sonner";
-
-export default function AdminDashboardPage() {
-  return (
-    <AppProviders>
-      <Container className="my-4">
-        <h2>Admin Dashboard</h2>
-        <DashboardContent />
-      </Container>
-    </AppProviders>
-  );
-}
+import type { Member } from "@server/models/member";
 
 function TableSkeleton({ rows = 5 }) {
   return (
@@ -47,18 +35,10 @@ function TableSkeleton({ rows = 5 }) {
   );
 }
 
-function DashboardContent() {
+export default function DashboardContent() {
   const [search, setSearch] = useState("");
 
-  const { data, isLoading, error } = useQuery<Member[]>({
-    queryKey: ["members"],
-    queryFn: async () => {
-      const res = await fetch("/api/members");
-      if (!res.ok) throw new Error(`Fetch failed: ${res.status}`);
-      const json = await res.json();
-      return json.data;
-    },
-  });
+  const { data, loading, error } = useFetch<Member[]>("/api/members");
 
   const filteredData = useMemo(() => {
     if (!data) return [];
@@ -67,17 +47,15 @@ function DashboardContent() {
     );
   }, [data, search]);
 
-  if (isLoading) return <TableSkeleton rows={6} />;
+  if (loading) return <TableSkeleton rows={6} />;
 
   if (error) {
-    toast.error((error as Error)?.message ?? "Unexpected error occurred");
+    toast.error(error.message || "Unexpected error occurred");
   }
 
   return (
     <>
-      {/* TOP BAR */}
       <div className="d-flex justify-content-between align-items-center mt-3">
-        {/* SEARCH */}
         <InputGroup style={{ maxWidth: 320 }}>
           <InputGroup.Text>
             <i className="bi bi-search" />
@@ -85,14 +63,12 @@ function DashboardContent() {
           <Form.Control placeholder="Search members..." value={search} onChange={(e) => setSearch(e.target.value)} />
         </InputGroup>
 
-        {/* ADD BUTTON */}
         <Button variant="primary">
           <i className="bi bi-plus-lg me-1" />
           Add Member
         </Button>
       </div>
 
-      {/* TABLE */}
       <Table striped bordered hover responsive className="mt-3">
         <thead>
           <tr>
@@ -127,7 +103,6 @@ function DashboardContent() {
                   <Dropdown.Toggle size="sm" variant="light" className="border">
                     <i className="bi bi-three-dots-vertical" />
                   </Dropdown.Toggle>
-
                   <Dropdown.Menu>
                     <Dropdown.Item>
                       <i className="bi bi-eye me-2" />

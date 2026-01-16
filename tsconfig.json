@@ -11,7 +11,11 @@
       "@components/*": ["src/components/*"],
       "@utils/*": ["src/utils/*"],
       "@server/*": ["src/server/*"],
-      "@layouts/*": ["src/layouts/*"]
+      "@layouts/*": ["src/layouts/*"],
+      "@hooks/*": ["src/hooks/*"],
+      "@typess/*": ["src/constants/*"],
+      "@styles/*": ["src/styles/*"],
+      "@constants/*": ["src/constants/*"]
     }
   }
 }
