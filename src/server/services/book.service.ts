@@ -1,43 +1,42 @@
 import { BooksRepo } from "@server/repositories/book.repo";
 import type { Book } from "@server/models/book";
-import { HttpError } from "@utils/httpError";
-import { created, ok } from "@utils/apiResponse";
+import { InternalServerError, NotFound } from "@utils/httpError";
 
 export const BooksService = {
   async create(dto: Omit<Book, "id">) {
     const data = await BooksRepo.create(dto);
     if (!data) {
-      throw new HttpError(500, "ggal create");
+      throw new InternalServerError();
     }
-    return created(data, "Buku berhasil dibuat");
+    return data;
   },
 
   async update(id: string, dto: Partial<Omit<Book, "id">>) {
     const updated = await BooksRepo.update(id, dto);
     if (!updated) {
-      throw new HttpError(500, "gagal update");
+      throw new InternalServerError();
     }
-    return ok(updated, "data berhasil di perbarui");
+    return updated;
   },
 
   async getById(id: string) {
     const data = await BooksRepo.getById(id);
     if (!data) {
-      throw new HttpError(404, "Buku tidak ditemukan");
+      throw new NotFound();
     }
-    return ok(data, "data ada");
+    return data;
   },
 
   async getAll(filter: { search?: string | null; category?: string | null }) {
     const datas = await BooksRepo.getAll(filter);
-    return ok(datas, "Data buku berhasil diambil");
+    return datas;
   },
 
   async delete(id: string) {
     const deleted = await BooksRepo.delete(id);
     if (!deleted) {
-      throw new HttpError(500, "gagal cuy");
+      throw new InternalServerError();
     }
-    return ok(deleted, "data berhasil dihapus");
+    return deleted;
   },
 };

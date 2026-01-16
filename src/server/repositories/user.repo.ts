@@ -2,14 +2,26 @@ import type { User } from "@server/models/user";
 import { mysqlPool } from "../config/mysql";
 
 export const UserRepo = {
-  async create(dto: Omit<User, "id_user">) {
+  async create(dto: Omit<User, "id_user" | "sign_up_at" | "sign_in_at" | "sign_out_at">) {
     const [result] = await mysqlPool.execute(
       `INSERT INTO users (username, email, password, role)
        VALUES (?, ?, ?, ?)`,
       [dto.username, dto.email, dto.password, dto.role]
     );
 
-    return (result as any).insertId;
+    const insertId = (result as any).insertId;
+
+    const [rows] = await mysqlPool.query(
+      `
+    SELECT
+     *
+    FROM users
+    WHERE id_user = ?
+    `,
+      [insertId]
+    );
+
+    return (rows as any[])[0];
   },
 
   async getAll(filter: { search?: string | null }) {

@@ -1,5 +1,5 @@
 import { defineMiddleware } from "astro:middleware";
-import { UserService } from "@server/services/user.service";
+import { AuthService } from "@server/services/auth.service";
 
 export const onRequest = defineMiddleware(async ({ cookies, url, locals }, next) => {
   const publicPaths = ["/auth", "/api/auth/sign-in"];
@@ -7,13 +7,13 @@ export const onRequest = defineMiddleware(async ({ cookies, url, locals }, next)
     return next();
   }
 
-  const token = cookies.get("token")?.value; // <-- gunakan cookies.get()
+  const token = cookies.get("token")?.value;
   if (!token) {
     return Response.redirect(new URL("/auth", url), 302);
   }
 
   try {
-    const decoded = UserService.verifyToken(token);
+    const decoded = AuthService.verifyToken(token);
     locals.user = decoded; // sekarang locals.user pasti ada
   } catch {
     return Response.redirect(new URL("/auth", url), 302);
