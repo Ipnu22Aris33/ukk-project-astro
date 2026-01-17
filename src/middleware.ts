@@ -2,7 +2,7 @@ import { defineMiddleware } from "astro:middleware";
 import { AuthService } from "@server/services/auth.service";
 
 export const onRequest = defineMiddleware(async ({ cookies, url, locals }, next) => {
-  const publicPaths = ["/auth", "/api/auth/sign-in"];
+  const publicPaths = ["/auth", "/api/auth/sign-in", "/api/auth/sign-up"];
   if (publicPaths.some((p) => url.pathname.startsWith(p))) {
     return next();
   }
@@ -14,7 +14,7 @@ export const onRequest = defineMiddleware(async ({ cookies, url, locals }, next)
 
   try {
     const decoded = AuthService.verifyToken(token);
-    locals.user = decoded; // sekarang locals.user pasti ada
+    locals.user = decoded;
   } catch {
     return Response.redirect(new URL("/auth", url), 302);
   }

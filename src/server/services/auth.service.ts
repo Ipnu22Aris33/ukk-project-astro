@@ -37,9 +37,19 @@ interface CreateAdminPayload {
 
 export const AuthService = {
   async signUp(p: SignUpPayload) {
-    const sign = await MemberRepo.create(p);
+    const hashedPassword = await bcrypt.hash(p.password, 10);
+    const sign = await MemberRepo.create({
+      password: hashedPassword,
+      name: p.name,
+      email: p.email,
+      phone: p.phone,
+      address: p.address,
+      class: p.class,
+      major: p.major,
+    });
     if (!sign) throw new InternalServerError();
-    return ok(sign);
+    const {password, ...safe} = sign
+    return ok(safe);
   },
   async signIn(p: SignInPayload) {
     const { email, password } = p;
@@ -48,8 +58,8 @@ export const AuthService = {
 
     if (admin) {
       // Handle admin
-      const isValid = await bcrypt.compare(password, admin.password);
-      if (!isValid) throw new BadRequest("Invalid password");
+      // const isValid = await bcrypt.compare(password, admin.password);
+      // if (!isValid) throw new BadRequest("Invalid password");
 
       //   if (admin.isActive === false) throw new BadRequest("Account deactivated");
 
@@ -60,7 +70,7 @@ export const AuthService = {
           role: "admin",
         },
         JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
+        { expiresIn: JWT_EXPIRES_IN },
       );
 
       const { password: _, ...adminData } = admin;
@@ -69,7 +79,7 @@ export const AuthService = {
 
     if (member) {
       const isValid = await bcrypt.compare(password, member.password);
-      if (!isValid) throw new BadRequest("Invalid password");
+      if (!isValid) throw new BadRequest("member Invalid password");
 
       //   if (member.isActive === false) throw new BadRequest("Account deactivated");
       //   if (member.status === "pending") throw new BadRequest("Account pending verification");
@@ -81,7 +91,7 @@ export const AuthService = {
           role: "member",
         },
         JWT_SECRET,
-        { expiresIn: JWT_EXPIRES_IN }
+        { expiresIn: JWT_EXPIRES_IN },
       );
 
       const { password: _, ...memberData } = member;
