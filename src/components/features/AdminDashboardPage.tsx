@@ -43,7 +43,7 @@ export default function DashboardContent() {
   const filteredData = useMemo(() => {
     if (!data) return [];
     return data.filter((member) =>
-      `${member.name} ${member.address} ${member.class} ${member.major}`.toLowerCase().includes(search.toLowerCase())
+      `${member.name} ${member.address} ${member.class} ${member.major}`.toLowerCase().includes(search.toLowerCase()),
     );
   }, [data, search]);
 
@@ -55,7 +55,7 @@ export default function DashboardContent() {
 
   return (
     <>
-      <div className="d-flex justify-content-between align-items-center mt-3">
+      <div className="d-flex justify-content-between align-items-center mt-3" style={{ minHeight: 50 }}>
         <InputGroup style={{ maxWidth: 320 }}>
           <InputGroup.Text>
             <i className="bi bi-search" />
@@ -78,7 +78,7 @@ export default function DashboardContent() {
             <th>Class</th>
             <th>Major</th>
             <th>Role</th>
-            <th className="text-end">Actions</th>
+            <th>Actions</th>
           </tr>
         </thead>
         <tbody>
@@ -98,7 +98,7 @@ export default function DashboardContent() {
               <td>{member.class}</td>
               <td>{member.major}</td>
               <td>{member.phone}</td>
-              <td className="text-end">
+              <td>
                 <Dropdown align="end">
                   <Dropdown.Toggle size="sm" variant="light" className="border">
                     <i className="bi bi-three-dots-vertical" />

@@ -3,7 +3,9 @@ import BaseLayout from "./BaseLayout.astro";
 ---
 
 <BaseLayout>
-  <div >
-    <slot />
+  <div class="min-vh-100 d-flex align-items-center justify-content-center p-3 container container-fluid">
+    <div class="row justify-content-center w-100">
+      <slot />
+    </div>
   </div>
 </BaseLayout>

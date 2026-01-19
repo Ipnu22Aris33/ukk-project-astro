@@ -53,6 +53,7 @@ export function LoginForm() {
         </Form.Label>
         <Form.Control
           type="password"
+          placeholder="Password"
           autoComplete="current-password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}
