@@ -1,9 +1,8 @@
 ---
 import DashboardLayout from "@layouts/DashboardLayout.astro";
-import AdminDashboardPage from "@components/features/AdminDashboardPage";
-import type { on } from "node:cluster";
+import MembersPage from "@components/features/MembersPage";
 ---
 
 <DashboardLayout>
-  <AdminDashboardPage client:only="react" />
+  <MembersPage client:only="react" />
 </DashboardLayout>

@@ -23,15 +23,10 @@ export default function AuthPage() {
                 <Card.Body className="p-0">
                   <Row className="g-0">
                     {/* Title di kiri */}
-                    <Col
-                      md={4}
-                      className="d-none d-md-flex align-items-center p-5 bg-primary bg-opacity-10"
-                    >
+                    <Col md={4} className="d-none d-md-flex align-items-center p-5 bg-primary bg-opacity-10">
                       <div>
                         <h2 className="fw-bold mb-2">Welcome Back</h2>
-                        <p className="text-muted small">
-                          Sign in to access your account and continue where you left off.
-                        </p>
+                        <p className="text-muted small">Sign in to access your account and continue where you left off.</p>
                         <div className="mt-4">
                           <h6 className="fw-semibold">Quick Access</h6>
                           <ul className="list-unstyled text-muted small">
@@ -82,15 +77,10 @@ export default function AuthPage() {
                 <Card.Body className="p-0">
                   <Row className="g-0">
                     {/* Title di kiri */}
-                    <Col
-                      md={4}
-                      className="d-none d-md-flex align-items-center p-5 bg-primary bg-opacity-10"
-                    >
+                    <Col md={4} className="d-none d-md-flex align-items-center p-5 bg-primary bg-opacity-10">
                       <div>
                         <h2 className="fw-bold mb-2">Create Account</h2>
-                        <p className="text-muted small">
-                          Join our platform and start your journey with personalized features.
-                        </p>
+                        <p className="text-muted small">Join our platform and start your journey with personalized features.</p>
                         <div className="mt-4">
                           <h6 className="fw-semibold">Why Register?</h6>
                           <ul className="list-unstyled text-muted small">
