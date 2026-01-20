@@ -2,7 +2,7 @@ import { useState, useMemo } from "react";
 import { Table, InputGroup, Form, Button, Dropdown, Placeholder } from "react-bootstrap";
 import { useFetch } from "@hooks/useFetch";
 import { toast } from "sonner";
-import type { Member } from "@server/models/member";
+import type { Member } from "@models/member";
 
 function TableSkeleton({ rows = 5 }) {
   return (

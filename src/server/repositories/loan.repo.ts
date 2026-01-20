@@ -1,4 +1,4 @@
-import type { Loan } from "@server/models/loan";
+import type { Loan } from "@models/loan";
 import { mysqlPool } from "../../lib/mysql";
 
 export const LoanRepo = {

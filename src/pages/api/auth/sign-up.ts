@@ -7,9 +7,6 @@ import { validateBody } from "@utils/validate";
 import { ok } from "@utils/apiResponse";
 import { InternalServerError } from "@utils/httpError";
 
-/* =========================
-   SCHEMA
-========================= */
 const Schema = z.object({
   name: z.string(),
   email: z.string().email(),
@@ -20,9 +17,6 @@ const Schema = z.object({
   major: z.string(),
 });
 
-/* =========================
-   POST / SIGN UP
-========================= */
 export const POST: APIRoute = async ({ request }) =>
   tryCatchApi(async () => {
     const body = await validateBody(request, Schema);

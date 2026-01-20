@@ -4,7 +4,7 @@ import { Modal, Button, Form } from "react-bootstrap";
 import { toast } from "sonner";
 import { useFetch } from "@hooks/useFetch";
 import DataTable, { type ActionItem } from "@components/views/DataTable";
-import { type Book } from "@server/models/book";
+import { type Book } from "@models/book";
 
 export default function BooksPage() {
   const { data, loading } = useFetch<Book[]>("/api/books");

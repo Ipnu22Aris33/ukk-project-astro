@@ -14,17 +14,17 @@ type OkOptions<M = any> = {
 
 export const ok = <T, M = undefined>(data?: T, options?: OkOptions<M>): ApiResponse<T, M> => ({
   success: true,
-  data,
   message: options?.message ?? "OK",
   meta: options?.meta,
-  status: options?.status,
+  status: options?.status ?? 200,
+  data,
 });
 
 export const created = <T>(data?: T, message = "Created"): ApiResponse<T> => ({
   success: true,
-  data,
   message,
   status: 201,
+  data,
 });
 
 export const noContent = (): ApiResponse => ({

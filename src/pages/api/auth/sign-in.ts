@@ -7,23 +7,17 @@ import { tryCatchApi } from "@utils/tryCatchApi";
 import { validateBody } from "@utils/validate";
 import { ok } from "@utils/apiResponse";
 import { BadRequest, NotFound } from "@utils/httpError";
-import { type Admin } from "@server/models/admin";
-import { type Member } from "@server/models/member";
+import { type Admin } from "@models/admin";
+import { type Member } from "@models/member";
 
 const JWT_SECRET = import.meta.env.JWT_SECRET as string;
 const JWT_EXPIRES_IN = import.meta.env.JWT_EXPIRES_IN;
 
-/* =========================
-   SCHEMA
-========================= */
 const Schema = z.object({
   email: z.string().email(),
   password: z.string(),
 });
 
-/* =========================
-   POST / SIGN IN
-========================= */
 export const POST: APIRoute = async ({ request }) =>
   tryCatchApi(async () => {
     const body = await validateBody(request, Schema);
@@ -50,7 +44,6 @@ export const POST: APIRoute = async ({ request }) =>
     const { password, ...safeUser } = user;
 
     return new Response(JSON.stringify(ok({ user: safeUser, token }).data), {
-      status: 200,
       headers: {
         "Set-Cookie": `token=${token}; HttpOnly; Path=/; SameSite=Strict`,
         "Content-Type": "application/json",

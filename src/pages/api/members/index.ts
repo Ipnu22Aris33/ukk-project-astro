@@ -5,7 +5,7 @@ import { tryCatchApi } from "@utils/tryCatchApi";
 import { validateBody } from "@utils/validate";
 import { ok } from "@utils/apiResponse";
 import { NotFound, InternalServerError } from "@utils/httpError";
-import type { Member } from "@server/models/member";
+import type { Member } from "@models/member";
 
 const memberSchema = z.object({
   name: z.string().min(1),

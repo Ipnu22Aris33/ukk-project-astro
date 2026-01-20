@@ -1,4 +1,4 @@
-import type { Book } from "@server/models/book";
+import type { Book } from "@models/book";
 import { mysqlPool } from "../../lib/mysql";
 
 export const BooksRepo = {

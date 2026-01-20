@@ -1,5 +1,5 @@
 import { BooksRepo } from "@server/repositories/book.repo";
-import type { Book } from "@server/models/book";
+import type { Book } from "@models/book";
 import { InternalServerError, NotFound } from "@utils/httpError";
 import { ok } from "@utils/apiResponse";
 

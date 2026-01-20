@@ -1,5 +1,5 @@
 import { AdminRepo } from "@server/repositories/admin.repo";
-import type { Admin } from "@server/models/admin";
+import type { Admin } from "@models/admin";
 import { InternalServerError, NotFound } from "@utils/httpError";
 
 export const AdminService = {

@@ -1,5 +1,5 @@
 import { MemberRepo } from "@server/repositories/member.repo";
-import type { Member } from "@server/models/member";
+import type { Member } from "@models/member";
 import { InternalServerError, NotFound } from "@utils/httpError";
 import { ok } from "@utils/apiResponse";
 

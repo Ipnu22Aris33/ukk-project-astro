@@ -1,5 +1,5 @@
 import { LoanRepo } from "@server/repositories/loan.repo";
-import type { Loan } from "@server/models/loan";
+import type { Loan } from "@models/loan";
 import { InternalServerError, NotFound } from "@utils/httpError";
 import { ok } from "@utils/apiResponse";
 

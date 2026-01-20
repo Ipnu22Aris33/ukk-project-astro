@@ -1,4 +1,4 @@
-import type { Member } from "@server/models/member";
+import type { Member } from "@models/member";
 import { mysqlPool } from "../../lib/mysql";
 
 export const MemberRepo = {
