@@ -73,7 +73,7 @@ function TableSkeleton({
       </div>
 
       <div className="flex-grow-1">
-        <Table bordered hover className="mb-0">
+        <Table striped hover className="mb-0" >
           <thead>
             <tr>
               <th style={{ width: "60px" }}>No</th>
@@ -429,7 +429,7 @@ export default function DataTable<T extends Record<string, any>>({
           </div>
         ) : (
           // Data Table
-          <Table bordered hover className="mb-0" style={{ tableLayout: "fixed", minWidth: "100%" }}>
+          <Table  striped hover className="mb-0" style={{ tableLayout: "fixed", minWidth: "100%" }}>
             <thead>
               <tr>
                 <th style={{ width: "60px" }}>No</th>

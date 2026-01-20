@@ -15,7 +15,8 @@
       "@hooks/*": ["src/hooks/*"],
       "@typess/*": ["src/constants/*"],
       "@styles/*": ["src/styles/*"],
-      "@constants/*": ["src/constants/*"]
+      "@constants/*": ["src/constants/*"],
+      "@lib/*": ["src/lib/*"]
     }
   }
 }

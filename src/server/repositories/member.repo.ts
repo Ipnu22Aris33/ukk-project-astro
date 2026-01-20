@@ -1,5 +1,5 @@
 import type { Member } from "@server/models/member";
-import { mysqlPool } from "../config/mysql";
+import { mysqlPool } from "../../lib/mysql";
 
 export const MemberRepo = {
   // =========================

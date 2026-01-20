@@ -1,5 +1,5 @@
 import type { Admin } from "@server/models/admin";
-import { mysqlPool } from "../config/mysql";
+import { mysqlPool } from "../../lib/mysql";
 
 export const AdminRepo = {
   // =========================

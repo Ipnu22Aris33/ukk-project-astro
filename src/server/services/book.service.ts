@@ -1,6 +1,7 @@
 import { BooksRepo } from "@server/repositories/book.repo";
 import type { Book } from "@server/models/book";
 import { InternalServerError, NotFound } from "@utils/httpError";
+import { ok } from "@utils/apiResponse";
 
 export const BooksService = {
   async create(dto: Omit<Book, "id">) {
@@ -8,7 +9,7 @@ export const BooksService = {
     if (!data) {
       throw new InternalServerError();
     }
-    return data;
+    return ok(data);
   },
 
   async update(id: string, dto: Partial<Omit<Book, "id">>) {
@@ -16,7 +17,7 @@ export const BooksService = {
     if (!updated) {
       throw new InternalServerError();
     }
-    return updated;
+    return ok(updated);
   },
 
   async getById(id: string) {
@@ -24,12 +25,13 @@ export const BooksService = {
     if (!data) {
       throw new NotFound();
     }
-    return data;
+    return ok(data);
   },
 
   async getAll(filter: { search?: string | null; category?: string | null }) {
     const datas = await BooksRepo.getAll(filter);
-    return datas;
+    console.log(datas, "ini teko service")
+    return ok(datas);
   },
 
   async delete(id: string) {
@@ -37,6 +39,6 @@ export const BooksService = {
     if (!deleted) {
       throw new InternalServerError();
     }
-    return deleted;
+    return ok(deleted);
   },
 };

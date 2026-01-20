@@ -1,19 +1,19 @@
-import { MemberRepo } from "@server/repositories/member.repo";
-import type { Member } from "@server/models/member";
+import { LoanRepo } from "@server/repositories/loan.repo";
+import type { Loan } from "@server/models/loan";
 import { InternalServerError, NotFound } from "@utils/httpError";
 import { ok } from "@utils/apiResponse";
 
 export const MemberService = {
-  async create(dto: Omit<Member, "id_member">) {
-    const data = await MemberRepo.create(dto);
+  async create(dto: Omit<Loan, "id_member">) {
+    const data = await LoanRepo.create(dto);
     if (!data) {
       throw new InternalServerError();
     }
     return ok(data);
   },
 
-  async update(id: string, dto: Partial<Omit<Member, "id_member">>) {
-    const updated = await MemberRepo.update(id, dto);
+  async update(id: string, dto: Partial<Omit<Loan, "id_member">>) {
+    const updated = await LoanRepo.update(id, dto);
     if (!updated) {
       throw new InternalServerError();
     }
@@ -21,7 +21,7 @@ export const MemberService = {
   },
 
   async getById(id: string) {
-    const data = await MemberRepo.getById(id);
+    const data = await LoanRepo.getById(id);
     if (!data) {
       throw new NotFound();
     }
@@ -29,12 +29,12 @@ export const MemberService = {
   },
 
   async getAll(filter: { search?: string | null; category?: string | null }) {
-    const datas = await MemberRepo.getAll(filter);
+    const datas = await LoanRepo.getAll(filter);
     return ok(datas);
   },
 
   async delete(id: string) {
-    const deleted = await MemberRepo.delete(id);
+    const deleted = await LoanRepo.delete(id);
     if (!deleted) {
       throw new InternalServerError();
     }
