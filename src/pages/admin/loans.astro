@@ -1,8 +1,8 @@
 ---
-import DashboardLayout from "@layouts/DashboardLayout.astro";
-import MembersPage from "@components/features/MembersPage";
+import AdminLayout from "@layouts/AdminLayout.astro";
+import LoansPage from "@components/features/LoansPage";
 ---
 
-<DashboardLayout>
-  <MembersPage client:only="react" />
-</DashboardLayout>
+<AdminLayout>
+  <LoansPage client:only="react" />
+</AdminLayout>

@@ -100,7 +100,7 @@ export default function AuthPage() {
                         <p className="text-muted">Fill in your details to get started</p>
                       </div>
 
-                      <div style={{ maxHeight: "400px" }} className="overflow-auto scrollbar-thin pe-2">
+                      <div style={{ maxHeight: "400px" }} className="overflow-auto scrollbar-thin px-2">
                         <RegisterForm />
                       </div>
 

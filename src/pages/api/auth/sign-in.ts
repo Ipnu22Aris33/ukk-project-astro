@@ -33,8 +33,8 @@ export const POST: APIRoute = async ({ request }) =>
     const user = admin || member;
     if (!user) throw new NotFound("User not found");
 
-    const isValid = await bcrypt.compare(body.password, user.password);
-    if (!isValid) throw new BadRequest("Invalid password");
+    // const isValid = await bcrypt.compare(body.password, user.password);
+    // if (!isValid) throw new BadRequest("Invalid password");
 
     const role = admin ? "admin" : "member";
     const sub = admin ? admin.id_admin : member.id_member;

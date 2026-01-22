@@ -1,8 +1,8 @@
 ---
-import DashboardLayout from "@layouts/DashboardLayout.astro";
+import AdminLayout   from "@layouts/AdminLayout.astro";
 import BooksPage from "@components/features/BooksPage"
 ---
 
-<DashboardLayout>
+<AdminLayout>
   <BooksPage client:only="react">
-</DashboardLayout>
+</AdminLayout>

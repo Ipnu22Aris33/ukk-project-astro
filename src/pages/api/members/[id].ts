@@ -21,8 +21,12 @@ export const GET: APIRoute = async ({ params }) =>
 
     const [rows] = await mysqlPool.query(`SELECT * FROM members WHERE id_member = ?`, [id]);
     if (!rows) throw new NotFound();
+    const member = (rows as any[])[0];
+    if (!member) throw new NotFound();
 
-    return ok(rows)
+    const { password, ...safeMember } = member;
+
+    return ok(safeMember);
   });
 
 export const PATCH: APIRoute = async ({ params, request }) =>
