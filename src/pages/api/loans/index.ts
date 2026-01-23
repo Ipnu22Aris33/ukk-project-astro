@@ -4,50 +4,77 @@ import { validateBody } from "@utils/validate";
 import { mysqlPool } from "@lib/mysql";
 import { type Loan, LoanSchema } from "@models/loan";
 import { ok } from "@utils/apiResponse";
+import { NotFound, UnprocessableEntity } from "@utils/httpError";
 
 export const POST: APIRoute = async ({ request }) =>
   tryCatchApi(async () => {
     const body = await validateBody(request, LoanSchema);
 
-    const [member, admin, book] = await Promise.all([
-      mysqlPool.query(`SELECT * FROM members WHERE id_member = ?`, [body.member_id]),
-      mysqlPool.query(`SELECT * FROM admins WHERE id_admin = ?`, [body.admin_id]),
-      mysqlPool.query(`SELECT * FROM books WHERE id_book = ?`, [body.book_id]),
-    ]);
+    const conn = await mysqlPool.getConnection();
+    try {
+      await conn.beginTransaction();
 
-    // 1. Validasi relasi
-    if ((member[0] as any[]).length === 0) {
-      throw new Error("Member not found");
+      /* =========================
+         VALIDASI MEMBER, ADMIN, BOOK
+      ========================== */
+      const [rows] = await conn.query(
+        `
+        SELECT
+          m.id_member,
+          a.id_admin,
+          b.id_book,
+          b.stock
+        FROM members m
+        JOIN admins a ON a.id_admin = ?
+        JOIN books b ON b.id_book = ?
+        WHERE m.id_member = ?
+        `,
+        [body.admin_id, body.book_id, body.member_id],
+      );
+
+      if ((rows as any[]).length === 0) {
+        throw new NotFound("Member / Admin / Book tidak ditemukan");
+      }
+
+      const data = (rows as any[])[0];
+
+      if (data.stock < body.count) {
+        throw new UnprocessableEntity("Stok buku tidak mencukupi");
+      }
+
+      /* =========================
+         INSERT LOAN
+      ========================== */
+      const [insertResult] = await conn.execute(
+        `
+        INSERT INTO loans 
+          (member_id, admin_id, book_id, count, loan_date, due_date, return_date, status)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+        `,
+        [body.member_id, body.admin_id, body.book_id, body.count, body.loan_date, body.due_date, body.return_date, body.status],
+      );
+
+      const insertId = (insertResult as any).insertId;
+
+      /* =========================
+         UPDATE STOCK
+      ========================== */
+      await conn.execute(`UPDATE books SET stock = stock - ? WHERE id_book = ?`, [body.count, body.book_id]);
+
+      /* =========================
+         COMMIT
+      ========================== */
+      await conn.commit();
+
+      const [loanRows] = await conn.query(`SELECT * FROM loans WHERE id_loan = ?`, [insertId]);
+
+      return ok((loanRows as Loan[])[0]);
+    } catch (err) {
+      await conn.rollback();
+      throw err;
+    } finally {
+      conn.release();
     }
-
-    if ((admin[0] as any[]).length === 0) {
-      throw new Error("Admin not found");
-    }
-
-    if ((book[0] as any[]).length === 0) {
-      throw new Error("Book not found");
-    }
-
-    const bookData = (book[0] as any[])[0];
-
-    // 2. Validasi stok
-    if (bookData.stock < body.count) {
-      throw new Error("Stok buku tidak mencukupi");
-    }
-
-    // 3. Insert loan (baru jalan kalau semua valid)
-    const [result] = await mysqlPool.execute(
-      `INSERT INTO loans (member_id, admin_id, book_id, count, loan_date, due_date, return_date, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
-      [body.member_id, body.admin_id, body.book_id, body.count, body.loan_date, body.due_date, body.return_date, body.status],
-    );
-
-    await mysqlPool.execute(`UPDATE books SET stock = stock - ? WHERE id_book = ?`, [body.count, body.book_id]);
-
-    const insertId = (result as any).insertId;
-
-    const [rows] = await mysqlPool.query(`SELECT * FROM loans WHERE id_loan = ?`, [insertId]);
-
-    return ok((rows as Loan[])[0]);
   });
 
 export const GET: APIRoute = async ({ request }) =>

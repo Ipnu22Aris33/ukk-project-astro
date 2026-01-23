@@ -51,7 +51,6 @@ export default function MemberPage() {
             icon: "bi-plus-lg",
             onClick: () => console.log("Add clicked")
           }}
-          minRows={1}
           
           // Pagination
           pagination={true}

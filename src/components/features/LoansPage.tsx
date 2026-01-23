@@ -9,15 +9,30 @@ import { type Loan } from "@models/loan";
 import { toast } from "sonner";
 
 /* =====================
-   FORMAT FUNCTIONS untuk Display
+   TIPE UNTUK FORM DATA
+===================== */
+interface LoanFormData {
+  id_loan?: string;
+  book_id: string;
+  member_id: string;
+  admin_id: string;
+  count: number;
+  loan_date: string; // String untuk input date
+  due_date: string; // String untuk input date
+  return_date?: string | null;
+  status: string;
+}
+
+/* =====================
+   FORMAT FUNCTIONS untuk Display dan Form
 ===================== */
 const formatDate = (date: Date | string | null) => {
   if (!date) return "-";
-  
+
   try {
     const dateObj = date instanceof Date ? date : new Date(date);
     if (isNaN(dateObj.getTime())) return "-";
-    
+
     return dateObj.toLocaleDateString("id-ID", {
       day: "2-digit",
       month: "short",
@@ -28,18 +43,77 @@ const formatDate = (date: Date | string | null) => {
   }
 };
 
+// Format tanggal untuk input type="date" (YYYY-MM-DD)
+const formatDateForInput = (date: Date | string | null): string => {
+  if (!date) return "";
+
+  try {
+    const dateObj = date instanceof Date ? date : new Date(date);
+    if (isNaN(dateObj.getTime())) return "";
+
+    // Adjust for timezone offset
+    const offset = dateObj.getTimezoneOffset() * 60000;
+    const localDate = new Date(dateObj.getTime() - offset);
+
+    return localDate.toISOString().split("T")[0];
+  } catch {
+    return "";
+  }
+};
+
+// Convert form data to Loan type (string dates to Date objects)
+const convertFormDataToLoan = (formData: LoanFormData): Partial<Loan> => {
+  const loanData: Partial<Loan> = {
+    book_id: formData.book_id,
+    member_id: formData.member_id,
+    admin_id: formData.admin_id,
+    count: formData.count,
+    status: formData.status,
+  };
+
+  // Convert date strings to Date objects
+  if (formData.loan_date) {
+    loanData.loan_date = new Date(formData.loan_date);
+  }
+
+  if (formData.due_date) {
+    loanData.due_date = new Date(formData.due_date);
+  }
+
+  if (formData.return_date) {
+    loanData.return_date = new Date(formData.return_date);
+  }
+
+  return loanData;
+};
+
+// Convert Loan to form data (Date objects to string)
+const convertLoanToFormData = (loan: Loan): LoanFormData => {
+  return {
+    id_loan: loan.id_loan,
+    book_id: loan.book_id,
+    member_id: loan.member_id,
+    admin_id: loan.admin_id,
+    count: loan.count,
+    loan_date: formatDateForInput(loan.loan_date),
+    due_date: formatDateForInput(loan.due_date),
+    return_date: formatDateForInput(loan.return_date),
+    status: loan.status,
+  };
+};
+
 const getStatusBadge = (status: string) => {
   const statusMap: Record<string, { label: string; color: string }> = {
     borrowed: { label: "Dipinjam", color: "primary" },
     returned: { label: "Dikembalikan", color: "success" },
     overdue: { label: "Terlambat", color: "danger" },
   };
-  
+
   return statusMap[status] || { label: status, color: "secondary" };
 };
 
 /* =====================
-   FORM CONFIG (SAMA)
+   FORM CONFIG
 ===================== */
 const loanFields: FieldConfig[] = [
   {
@@ -95,13 +169,13 @@ const loanFields: FieldConfig[] = [
   },
 ];
 
-const emptyLoan = {
+const emptyLoanForm: LoanFormData = {
   book_id: "",
   member_id: "",
   admin_id: "",
   count: 1,
-  loan_date: new Date().toISOString().split("T")[0],
-  due_date: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString().split("T")[0],
+  loan_date: formatDateForInput(new Date()),
+  due_date: formatDateForInput(new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)),
   status: "borrowed",
 };
 
@@ -112,7 +186,8 @@ export default function LoansPage() {
   const [page, setPage] = useState(1);
   const { data = [], loading: fetching, refetch } = useFetch<Loan[]>("/api/loans");
 
-  const modal = useModal<Loan>();
+  // Gunakan LoanFormData untuk modal
+  const modal = useModal<LoanFormData>();
 
   // Mutation hooks
   const createMutation = useMutation(async (loanData: Partial<Loan>) => {
@@ -151,7 +226,8 @@ export default function LoansPage() {
   };
 
   const handleOpenEdit = (loan: Loan) => {
-    modal.open(loan);
+    const formData = convertLoanToFormData(loan);
+    modal.open(formData);
   };
 
   const handleDelete = async (loan: Loan) => {
@@ -172,18 +248,27 @@ export default function LoansPage() {
 
   const handleSave = async (formData: Record<string, any>) => {
     try {
-      if (modal.isEditMode && modal.selected) {
+      // Konversi form data ke tipe LoanFormData
+      const loanFormData = formData as LoanFormData;
+
+      // Konversi count ke number
+      loanFormData.count = parseInt(loanFormData.count.toString()) || 1;
+
+      // Convert form data to Loan type
+      const loanData = convertFormDataToLoan(loanFormData);
+
+      if (modal.isEditMode && modal.selected && modal.selected.id_loan) {
         // UPDATE
         await updateMutation.mutate({
           id: modal.selected.id_loan,
-          data: formData,
+          data: loanData,
         });
         toast.success("Sukses", {
           description: "Peminjaman berhasil diperbarui",
         });
       } else {
         // CREATE
-        await createMutation.mutate(formData);
+        await createMutation.mutate(loanData);
         toast.success("Sukses", {
           description: "Peminjaman berhasil ditambahkan",
         });
@@ -234,9 +319,9 @@ export default function LoansPage() {
           loading={loading}
           columns={[
             { key: "id_loan", title: "ID", width: 80 },
-            { key: "book_id", title: "ID Buku", width: 100 },
-            { key: "member_id", title: "ID Anggota", width: 120 },
-            { key: "admin_id", title: "ID Admin", width: 100 },
+            { key: "book_id", title: "ID Buku", width: 80 },
+            { key: "member_id", title: "ID Anggota", width: 80 },
+            { key: "admin_id", title: "ID Admin", width: 80 },
             { key: "count", title: "Jumlah", width: 80 },
             {
               key: "loan_date",
@@ -248,10 +333,8 @@ export default function LoansPage() {
               title: "Jatuh Tempo",
               render: (value, row) => {
                 const formattedDate = formatDate(value);
-                const isOverdue = 
-                  new Date(value) < new Date() && 
-                  row.status !== "returned";
-                
+                const isOverdue = new Date(value) < new Date() && row.status !== "returned";
+
                 return (
                   <span className={isOverdue ? "text-danger fw-bold" : ""}>
                     {formattedDate}
@@ -271,11 +354,7 @@ export default function LoansPage() {
               width: 120,
               render: (value: string) => {
                 const badge = getStatusBadge(value);
-                return (
-                  <span className={`badge bg-${badge.color}`}>
-                    {badge.label}
-                  </span>
-                );
+                return <span className={`badge bg-${badge.color}`}>{badge.label}</span>;
               },
             },
           ]}
@@ -298,7 +377,7 @@ export default function LoansPage() {
         onHide={modal.close}
         title={modal.isEditMode ? "Edit Peminjaman" : "Tambah Peminjaman"}
         fields={loanFields}
-        initialValue={modal.selected ?? emptyLoan}
+        initialValue={modal.selected ?? emptyLoanForm}
         onSubmit={handleSave}
         isSubmitting={createMutation.loading || updateMutation.loading}
       />

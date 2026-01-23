@@ -1,6 +1,6 @@
 // DataTable.tsx
 import { useState, useMemo, useRef, useEffect } from "react";
-import { Table, InputGroup, Form, Placeholder, Button, Pagination, OverlayTrigger, Tooltip, Dropdown } from "react-bootstrap";
+import { Table, InputGroup, Form, Placeholder, Button, Pagination, Dropdown } from "react-bootstrap";
 
 export interface Column<T> {
   key: keyof T | string;
@@ -82,7 +82,9 @@ function TableSkeleton({
           <Table striped hover className="mb-0">
             <thead>
               <tr>
-                <th style={{ width: "60px" }} className="text-center">No</th>
+                <th style={{ width: "60px" }} className="text-center">
+                  No
+                </th>
                 {Array.from({ length: columns }).map((_, i) => (
                   <th key={i} className="text-center">
                     <Placeholder animation="glow">
@@ -90,7 +92,11 @@ function TableSkeleton({
                     </Placeholder>
                   </th>
                 ))}
-                {showActions && <th style={{ width: "100px" }} className="text-center">Actions</th>}
+                {showActions && (
+                  <th style={{ width: "100px" }} className="text-center">
+                    Actions
+                  </th>
+                )}
               </tr>
             </thead>
             <tbody>
@@ -133,86 +139,148 @@ function TableSkeleton({
   );
 }
 
-// Actions Component dengan Dropdown support
+// Actions Component dengan Dropdown support yang lebih baik
 function DefaultActions<T>({ item, actions }: { item: T; actions: ActionConfig<T> }) {
   const { items = [], maxVisible = 2 } = actions;
-  
+
   if (!items || items.length === 0) return null;
 
   // Filter actions yang visible
-  const visibleActions = items.filter(action => 
-    action.show === undefined || action.show(item)
-  );
+  const visibleActions = items.filter((action) => action.show === undefined || action.show(item));
 
   if (visibleActions.length === 0) return null;
 
   // Actions yang punya dropdown
-  const dropdownActions = visibleActions.filter(action => action.dropdown);
-  
+  const dropdownActions = visibleActions.filter((action) => action.dropdown);
+
   // Actions biasa
-  const regularActions = visibleActions.filter(action => !action.dropdown);
-  
+  const regularActions = visibleActions.filter((action) => !action.dropdown);
+
+  // Jika hanya ada 1 action dropdown, tampilkan sebagai dropdown biasa
+  if (dropdownActions.length === 1 && regularActions.length === 0) {
+    const action = dropdownActions[0];
+    return (
+      <div className="d-flex justify-content-center" style={{ minWidth: "50px" }}>
+        <Dropdown>
+          <Dropdown.Toggle
+            size="sm"
+            variant={action.variant || "outline-secondary"}
+            className="d-flex align-items-center justify-content-center"
+            style={{
+              width: "36px",
+              height: "36px",
+              padding: 0,
+              borderRadius: "4px",
+            }}
+            title={action.label}
+          >
+            {action.icon ? <i className={`bi ${action.icon}`} /> : <i className="bi bi-three-dots" />}
+          </Dropdown.Toggle>
+          <Dropdown.Menu>
+            {action.dropdown?.map(
+              (subAction, subIndex) =>
+                (subAction.show === undefined || subAction.show(item)) && (
+                  <Dropdown.Item key={subIndex} onClick={() => subAction.onClick(item)} className="d-flex align-items-center">
+                    {subAction.icon && <i className={`bi ${subAction.icon} me-2`} />}
+                    {subAction.label}
+                  </Dropdown.Item>
+                ),
+            )}
+          </Dropdown.Menu>
+        </Dropdown>
+      </div>
+    );
+  }
+
   // Tentukan apakah perlu dropdown untuk regular actions
   const showActionsDropdown = regularActions.length > maxVisible;
-  const visibleRegularActions = showActionsDropdown 
-    ? regularActions.slice(0, maxVisible - 1) 
-    : regularActions;
-  const hiddenRegularActions = showActionsDropdown 
-    ? regularActions.slice(maxVisible - 1) 
-    : [];
+  const visibleRegularActions = showActionsDropdown ? regularActions.slice(0, maxVisible) : regularActions;
+  const hiddenRegularActions = showActionsDropdown ? regularActions.slice(maxVisible) : [];
 
-  return (
-    <div className="d-flex justify-content-center gap-1" style={{ minWidth: "100px" }}>
-      {/* Regular actions yang visible */}
-      {visibleRegularActions.map((action, index) => (
-        <OverlayTrigger
-          key={index}
-          placement="top"
-          overlay={<Tooltip id={`tooltip-${index}`}>{action.label}</Tooltip>}
-        >
+  // Jika semua actions bisa ditampilkan tanpa dropdown
+  if (!showActionsDropdown && dropdownActions.length === 0) {
+    return (
+      <div className="d-flex justify-content-center gap-1 flex-wrap" style={{ minWidth: "80px" }}>
+        {visibleRegularActions.map((action, index) => (
           <Button
+            key={index}
             size="sm"
             variant={action.variant || "outline-primary"}
             onClick={() => action.onClick(item)}
             className="d-flex align-items-center justify-content-center"
-            style={{ width: "32px", height: "32px" }}
+            style={{
+              width: "36px",
+              height: "36px",
+              flexShrink: 0,
+              borderRadius: "4px",
+            }}
+            title={action.label}
           >
-            {action.icon && <i className={`bi ${action.icon}`} />}
-            {!action.icon && <span>{action.label.charAt(0)}</span>}
+            {action.icon ? (
+              <i className={`bi ${action.icon}`} />
+            ) : (
+              <span style={{ fontSize: "0.75rem" }}>{action.label.charAt(0)}</span>
+            )}
           </Button>
-        </OverlayTrigger>
+        ))}
+      </div>
+    );
+  }
+
+  return (
+    <div className="d-flex justify-content-center gap-1 flex-wrap" style={{ minWidth: "100px" }}>
+      {/* Regular actions yang visible */}
+      {visibleRegularActions.map((action, index) => (
+        <Button
+          key={index}
+          size="sm"
+          variant={action.variant || "outline-primary"}
+          onClick={() => action.onClick(item)}
+          className="d-flex align-items-center justify-content-center"
+          style={{
+            width: "36px",
+            height: "36px",
+            flexShrink: 0,
+            borderRadius: "4px",
+          }}
+          title={action.label}
+        >
+          {action.icon ? (
+            <i className={`bi ${action.icon}`} />
+          ) : (
+            <span style={{ fontSize: "0.75rem" }}>{action.label.charAt(0)}</span>
+          )}
+        </Button>
       ))}
 
       {/* Dropdown untuk actions yang punya submenu */}
       {dropdownActions.map((action, index) => (
         <Dropdown key={`dropdown-${index}`} className="d-inline-block">
-          <OverlayTrigger
-            placement="top"
-            overlay={<Tooltip id={`tooltip-dropdown-${index}`}>{action.label}</Tooltip>}
+          <Dropdown.Toggle
+            size="sm"
+            variant={action.variant || "outline-secondary"}
+            className="d-flex align-items-center justify-content-center"
+            style={{
+              width: "36px",
+              height: "36px",
+              flexShrink: 0,
+              borderRadius: "4px",
+            }}
+            title={action.label}
           >
-            <Dropdown.Toggle
-              size="sm"
-              variant={action.variant || "outline-secondary"}
-              className="d-flex align-items-center justify-content-center"
-              style={{ width: "32px", height: "32px" }}
-            >
-              {action.icon && <i className={`bi ${action.icon}`} />}
-              {!action.icon && <i className="bi bi-three-dots" />}
-            </Dropdown.Toggle>
-          </OverlayTrigger>
+            {action.icon ? <i className={`bi ${action.icon}`} /> : <i className="bi bi-three-dots-vertical" />}
+          </Dropdown.Toggle>
           <Dropdown.Menu>
-            {action.dropdown?.map((subAction, subIndex) => (
-              (subAction.show === undefined || subAction.show(item)) && (
-                <Dropdown.Item
-                  key={subIndex}
-                  onClick={() => subAction.onClick(item)}
-                  className="d-flex align-items-center"
-                >
-                  {subAction.icon && <i className={`bi ${subAction.icon} me-2`} />}
-                  {subAction.label}
-                </Dropdown.Item>
-              )
-            ))}
+            <Dropdown.Header>{action.label}</Dropdown.Header>
+            {action.dropdown?.map(
+              (subAction, subIndex) =>
+                (subAction.show === undefined || subAction.show(item)) && (
+                  <Dropdown.Item key={subIndex} onClick={() => subAction.onClick(item)} className="d-flex align-items-center">
+                    {subAction.icon && <i className={`bi ${subAction.icon} me-2`} />}
+                    {subAction.label}
+                  </Dropdown.Item>
+                ),
+            )}
           </Dropdown.Menu>
         </Dropdown>
       ))}
@@ -224,17 +292,19 @@ function DefaultActions<T>({ item, actions }: { item: T; actions: ActionConfig<T
             size="sm"
             variant="outline-secondary"
             className="d-flex align-items-center justify-content-center"
-            style={{ width: "32px", height: "32px" }}
+            style={{
+              width: "36px",
+              height: "36px",
+              flexShrink: 0,
+              borderRadius: "4px",
+            }}
+            title="More actions"
           >
             <i className="bi bi-three-dots" />
           </Dropdown.Toggle>
           <Dropdown.Menu>
             {hiddenRegularActions.map((action, index) => (
-              <Dropdown.Item
-                key={`more-${index}`}
-                onClick={() => action.onClick(item)}
-                className="d-flex align-items-center"
-              >
+              <Dropdown.Item key={`more-${index}`} onClick={() => action.onClick(item)} className="d-flex align-items-center">
                 {action.icon && <i className={`bi ${action.icon} me-2`} />}
                 {action.label}
               </Dropdown.Item>
@@ -274,7 +344,7 @@ export default function DataTable<T extends Record<string, any>>({
   const actionsConfig: ActionConfig<T> = {
     show: true,
     position: "end",
-    maxVisible: 2,
+    maxVisible: 3,
     ...actions,
   };
 
@@ -307,10 +377,7 @@ export default function DataTable<T extends Record<string, any>>({
 
   if (pagination) {
     // Gunakan pagination
-    displayedData = filteredData.slice(
-      (currentPageSafe - 1) * pageSize,
-      currentPageSafe * pageSize
-    );
+    displayedData = filteredData.slice((currentPageSafe - 1) * pageSize, currentPageSafe * pageSize);
     hasMoreRows = filteredData.length > pageSize;
     rowCount = displayedData.length;
   } else {
@@ -368,12 +435,10 @@ export default function DataTable<T extends Record<string, any>>({
 
   const showActionsColumn = actionsConfig.show && actionsConfig.items && actionsConfig.items.length > 0;
   const hasSearchResults = search && filteredData.length === 0;
-  
+
   // Calculate showing ranges
-  const showingStartRow = pagination 
-    ? (currentPageSafe - 1) * pageSize + 1 
-    : 1;
-  const showingEndRow = pagination 
+  const showingStartRow = pagination ? (currentPageSafe - 1) * pageSize + 1 : 1;
+  const showingEndRow = pagination
     ? Math.min(currentPageSafe * pageSize, filteredData.length)
     : Math.min(maxRows, filteredData.length);
 
@@ -400,8 +465,8 @@ export default function DataTable<T extends Record<string, any>>({
 
         {/* Add Button */}
         {addButton && (
-          <Button 
-            variant={addButton.variant || "primary"} 
+          <Button
+            variant={addButton.variant || "primary"}
             onClick={addButton.onClick}
             className="ms-auto ms-md-0 d-flex align-items-center"
             size="sm"
@@ -428,28 +493,65 @@ export default function DataTable<T extends Record<string, any>>({
           </div>
         ) : (
           // Data Table dengan fixed height jika maxRows
-          <div 
-            className={`table-responsive rounded border ${fixedHeight ? 'overflow-auto' : ''}`}
-            style={fixedHeight ? { height: tableHeight } : {}}
+          <div
+            className={`table-responsive rounded border ${fixedHeight ? "overflow-auto" : ""}`}
+            style={
+              fixedHeight
+                ? {
+                    height: tableHeight,
+                    position: "relative",
+                  }
+                : {}
+            }
           >
-            <Table striped hover className="mb-0" style={{ tableLayout: "fixed", width: "100%" }}>
-              <thead style={{ position: "sticky", top: 0, backgroundColor: "white", zIndex: 1 }}>
+            <Table
+              striped
+              hover
+              className="mb-0"
+              style={{
+                tableLayout: "fixed",
+                width: "100%",
+                minWidth: "100%",
+              }}
+            >
+              <thead
+                style={{
+                  position: "sticky",
+                  top: 0,
+                  backgroundColor: "white",
+                  zIndex: 2,
+                  whiteSpace: "nowrap",
+                }}
+              >
                 <tr>
-                  <th style={{ width: "60px", minWidth: "60px" }} className="text-center">No</th>
+                  <th
+                    style={{
+                      width: "60px",
+                      minWidth: "60px",
+                      position: "sticky",
+                      left: 0,
+                      backgroundColor: "white",
+                      zIndex: 3,
+                      borderRight: "1px solid #dee2e6",
+                    }}
+                    className="text-center"
+                  >
+                    No
+                  </th>
                   {columns.map((col) => {
                     const colWidth = col.width || "auto";
                     const minWidth = col.minWidth || "100px";
-                    
+
                     return (
-                      <th 
-                        key={col.key as string} 
-                        style={{ 
+                      <th
+                        key={col.key as string}
+                        style={{
                           width: colWidth,
                           minWidth: minWidth,
                           maxWidth: "300px",
                           overflow: "hidden",
                           textOverflow: "ellipsis",
-                          whiteSpace: "nowrap"
+                          whiteSpace: "nowrap",
                         }}
                         className="text-center"
                         title={col.title}
@@ -459,50 +561,82 @@ export default function DataTable<T extends Record<string, any>>({
                     );
                   })}
                   {showActionsColumn && (
-                    <th style={{ 
-                      width: "120px", 
-                      minWidth: "120px",
-                      maxWidth: "150px"
-                    }} className="text-center">Actions</th>
+                    <th
+                      style={{
+                        width: "150px",
+                        minWidth: "150px",
+                        maxWidth: "200px",
+                        position: "sticky",
+                        right: 0,
+                        backgroundColor: "white",
+                        zIndex: 3,
+                        borderLeft: "1px solid #dee2e6",
+                      }}
+                      className="text-center"
+                    >
+                      Actions
+                    </th>
                   )}
                 </tr>
               </thead>
               <tbody>
-                {displayedData.map((item, index) => (
-                  <tr key={index}>
-                    <td style={{ verticalAlign: "middle" }} className="text-center">
-                      {showingStartRow + index}
-                    </td>
-                    {columns.map((col) => {
-                      const cellContent = col.render 
-                        ? col.render(item[col.key], item) 
-                        : item[col.key] || "-";
-                      
-                      return (
-                        <td 
-                          key={col.key as string} 
-                          style={{ 
-                            verticalAlign: "middle",
-                            maxWidth: "300px",
-                            overflow: "hidden",
-                            textOverflow: "ellipsis"
-                          }} 
-                          className="text-center px-2"
-                          title={typeof cellContent === 'string' ? cellContent : undefined}
-                        >
-                          <div className="text-truncate">
-                            {cellContent}
-                          </div>
-                        </td>
-                      );
-                    })}
-                    {showActionsColumn && actionsConfig.items && (
-                      <td style={{ verticalAlign: "middle" }} className="text-center px-2">
-                        <DefaultActions item={item} actions={actionsConfig} />
+                {displayedData.map((item, index) => {
+                  const isEvenRow = index % 2 === 0;
+                  const rowBgColor = isEvenRow ? "white" : "#f8f9fa";
+
+                  return (
+                    <tr key={index}>
+                      <td
+                        style={{
+                          verticalAlign: "middle",
+                          position: "sticky",
+                          left: 0,
+                          backgroundColor: rowBgColor,
+                          zIndex: 1,
+                          borderRight: "1px solid #dee2e6",
+                        }}
+                        className="text-center"
+                      >
+                        {showingStartRow + index}
                       </td>
-                    )}
-                  </tr>
-                ))}
+                      {columns.map((col) => {
+                        const cellContent = col.render ? col.render(item[col.key], item) : item[col.key] || "-";
+
+                        return (
+                          <td
+                            key={col.key as string}
+                            style={{
+                              verticalAlign: "middle",
+                              maxWidth: "300px",
+                              overflow: "hidden",
+                              textOverflow: "ellipsis",
+                              backgroundColor: rowBgColor,
+                            }}
+                            className="text-center px-2"
+                            title={typeof cellContent === "string" ? cellContent : undefined}
+                          >
+                            <div className="text-truncate">{cellContent}</div>
+                          </td>
+                        );
+                      })}
+                      {showActionsColumn && actionsConfig.items && (
+                        <td
+                          style={{
+                            verticalAlign: "middle",
+                            position: "sticky",
+                            right: 0,
+                            backgroundColor: rowBgColor,
+                            zIndex: 1,
+                            borderLeft: "1px solid #dee2e6",
+                          }}
+                          className="text-center px-2"
+                        >
+                          <DefaultActions item={item} actions={actionsConfig} />
+                        </td>
+                      )}
+                    </tr>
+                  );
+                })}
 
                 {/* Indicator jika ada lebih banyak rows */}
                 {!pagination && hasMoreRows && (
@@ -524,7 +658,11 @@ export default function DataTable<T extends Record<string, any>>({
       {pagination && filteredData.length > 0 && (
         <div className="d-flex flex-column flex-md-row justify-content-between align-items-center mt-3 gap-2">
           <div className="text-muted small">
-            Showing <strong>{showingStartRow}-{showingEndRow}</strong> of <strong>{filteredData.length}</strong> items
+            Showing{" "}
+            <strong>
+              {showingStartRow}-{showingEndRow}
+            </strong>{" "}
+            of <strong>{filteredData.length}</strong> items
             {search && (
               <span className="ms-2">
                 • Filtered by: "<strong>{search}</strong>"
@@ -534,11 +672,8 @@ export default function DataTable<T extends Record<string, any>>({
 
           {totalPages > 1 && (
             <Pagination className="mb-0">
-              <Pagination.Prev 
-                onClick={() => handlePageChange(currentPageSafe - 1)} 
-                disabled={currentPageSafe === 1} 
-              />
-              
+              <Pagination.Prev onClick={() => handlePageChange(currentPageSafe - 1)} disabled={currentPageSafe === 1} />
+
               {Array.from({ length: Math.min(5, totalPages) }).map((_, i) => {
                 let pageNum = i + 1;
                 if (totalPages > 5) {
@@ -547,22 +682,15 @@ export default function DataTable<T extends Record<string, any>>({
                     if (pageNum > totalPages) pageNum = totalPages - (4 - i);
                   }
                 }
-                
+
                 return (
-                  <Pagination.Item 
-                    key={pageNum} 
-                    active={pageNum === currentPageSafe} 
-                    onClick={() => handlePageChange(pageNum)}
-                  >
+                  <Pagination.Item key={pageNum} active={pageNum === currentPageSafe} onClick={() => handlePageChange(pageNum)}>
                     {pageNum}
                   </Pagination.Item>
                 );
               })}
-              
-              <Pagination.Next 
-                onClick={() => handlePageChange(currentPageSafe + 1)} 
-                disabled={currentPageSafe === totalPages} 
-              />
+
+              <Pagination.Next onClick={() => handlePageChange(currentPageSafe + 1)} disabled={currentPageSafe === totalPages} />
             </Pagination>
           )}
         </div>
@@ -572,11 +700,7 @@ export default function DataTable<T extends Record<string, any>>({
       {!pagination && filteredData.length > 0 && (
         <div className="text-muted small mt-3 text-center text-md-start">
           Showing <strong>{rowCount}</strong> of <strong>{filteredData.length}</strong> items
-          {hasMoreRows && (
-            <span className="ms-2 text-warning">
-              • Scroll to see {filteredData.length - maxRows} more rows
-            </span>
-          )}
+          {hasMoreRows && <span className="ms-2 text-warning">• Scroll to see {filteredData.length - maxRows} more rows</span>}
           {search && (
             <span className="ms-2">
               • Filtered by: "<strong>{search}</strong>"
