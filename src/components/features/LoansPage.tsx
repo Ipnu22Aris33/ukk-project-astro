@@ -6,6 +6,8 @@ import { useModal } from "@hooks/useModal";
 import DataTable from "@components/views/DataTable";
 import FormModal, { type FieldConfig } from "@components/views/FormModal";
 import { type Loan } from "@models/loan";
+import { type Book } from "@models/book";
+import { type Member } from "@models/member";
 import { toast } from "sonner";
 
 /* =====================
@@ -112,63 +114,6 @@ const getStatusBadge = (status: string) => {
   return statusMap[status] || { label: status, color: "secondary" };
 };
 
-/* =====================
-   FORM CONFIG
-===================== */
-const loanFields: FieldConfig[] = [
-  {
-    name: "book_id",
-    label: "ID Buku",
-    type: "text",
-    required: true,
-    placeholder: "Masukkan ID buku",
-  },
-  {
-    name: "member_id",
-    label: "ID Anggota",
-    type: "text",
-    required: true,
-    placeholder: "Masukkan ID anggota",
-  },
-  {
-    name: "admin_id",
-    label: "ID Admin",
-    type: "text",
-    required: true,
-    placeholder: "Masukkan ID admin",
-  },
-  {
-    name: "count",
-    label: "Jumlah",
-    type: "number",
-    required: true,
-    placeholder: "Masukkan jumlah buku",
-  },
-  {
-    name: "loan_date",
-    label: "Tanggal Pinjam",
-    type: "date",
-    required: true,
-  },
-  {
-    name: "due_date",
-    label: "Tanggal Jatuh Tempo",
-    type: "date",
-    required: true,
-  },
-  {
-    name: "status",
-    label: "Status",
-    type: "select",
-    required: true,
-    options: [
-      { label: "Dipinjam", value: "borrowed" },
-      { label: "Dikembalikan", value: "returned" },
-      { label: "Terlambat", value: "overdue" },
-    ],
-  },
-];
-
 const emptyLoanForm: LoanFormData = {
   book_id: "",
   member_id: "",
@@ -185,6 +130,10 @@ const emptyLoanForm: LoanFormData = {
 export default function LoansPage() {
   const [page, setPage] = useState(1);
   const { data = [], loading: fetching, refetch } = useFetch<Loan[]>("/api/loans");
+
+  // Ambil data untuk dropdown
+  const { data: books = [] } = useFetch<Book[]>("/api/books");
+  const { data: members = [] } = useFetch<Member[]>("/api/members");
 
   // Gunakan LoanFormData untuk modal
   const modal = useModal<LoanFormData>();
@@ -285,26 +234,20 @@ export default function LoansPage() {
   };
 
   /* =====================
-     TABLE ACTIONS
-  ===================== */
-  const tableActions = [
-    {
-      label: "Edit",
-      icon: "bi-pencil",
-      onClick: handleOpenEdit,
-    },
-    {
-      label: "Delete",
-      icon: "bi-trash",
-      variant: "danger" as const,
-      onClick: (loan: Loan) => handleDelete(loan),
-    },
-  ];
-
-  /* =====================
      LOADING STATE
   ===================== */
   const loading = fetching || createMutation.loading || updateMutation.loading || deleteMutation.loading;
+
+  // Buat options untuk dropdown dari data API
+  const bookOptions = (books || []).map((book) => ({
+    label: `${book.title} (ID: ${book.id_book})`,
+    value: String(book.id_book), // Value tetap ID
+  }));
+
+  const memberOptions = (members || []).map((member) => ({
+    label: `${member.name} (ID: ${member.id_member})`,
+    value: String(member.id_member), // Value tetap ID
+  }));
 
   /* =====================
      RENDER dengan Format Tanggal
@@ -359,7 +302,21 @@ export default function LoansPage() {
             },
           ]}
           searchable
-          actions={{ items: tableActions }}
+          actions={{
+            items: [
+              {
+                label: "Edit",
+                icon: "bi-pencil",
+                onClick: handleOpenEdit,
+              },
+              {
+                label: "Delete",
+                icon: "bi-trash",
+                variant: "danger" as const,
+                onClick: (loan: Loan) => handleDelete(loan),
+              },
+            ],
+          }}
           addButton={{
             label: "Tambah Peminjaman",
             icon: "bi-plus-lg",
@@ -376,7 +333,63 @@ export default function LoansPage() {
         show={modal.show}
         onHide={modal.close}
         title={modal.isEditMode ? "Edit Peminjaman" : "Tambah Peminjaman"}
-        fields={loanFields}
+        fields={[
+          {
+            name: "book_id",
+            label: "Buku",
+            type: "select",
+            required: true,
+            placeholder: "Pilih buku",
+            options: bookOptions, // Pakai options dari API
+            isSearchable: true,
+          },
+          {
+            name: "member_id",
+            label: "Anggota",
+            type: "select",
+            required: true,
+            placeholder: "Pilih anggota",
+            options: memberOptions, // Pakai options dari API
+            isSearchable: true,
+          },
+          {
+            name: "admin_id",
+            label: "ID Admin",
+            type: "text",
+            required: true,
+            placeholder: "Masukkan ID admin",
+          },
+          {
+            name: "count",
+            label: "Jumlah",
+            type: "number",
+            required: true,
+            placeholder: "Masukkan jumlah buku",
+          },
+          {
+            name: "loan_date",
+            label: "Tanggal Pinjam",
+            type: "date",
+            required: true,
+          },
+          {
+            name: "due_date",
+            label: "Tanggal Jatuh Tempo",
+            type: "date",
+            required: true,
+          },
+          {
+            name: "status",
+            label: "Status",
+            type: "select",
+            required: true,
+            options: [
+              { label: "Dipinjam", value: "borrowed" },
+              { label: "Dikembalikan", value: "returned" },
+              { label: "Terlambat", value: "overdue" },
+            ],
+          },
+        ]}
         initialValue={modal.selected ?? emptyLoanForm}
         onSubmit={handleSave}
         isSubmitting={createMutation.loading || updateMutation.loading}

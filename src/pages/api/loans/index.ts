@@ -14,9 +14,6 @@ export const POST: APIRoute = async ({ request }) =>
     try {
       await conn.beginTransaction();
 
-      /* =========================
-         VALIDASI MEMBER, ADMIN, BOOK
-      ========================== */
       const [rows] = await conn.query(
         `
         SELECT
@@ -42,9 +39,6 @@ export const POST: APIRoute = async ({ request }) =>
         throw new UnprocessableEntity("Stok buku tidak mencukupi");
       }
 
-      /* =========================
-         INSERT LOAN
-      ========================== */
       const [insertResult] = await conn.execute(
         `
         INSERT INTO loans 
@@ -56,14 +50,8 @@ export const POST: APIRoute = async ({ request }) =>
 
       const insertId = (insertResult as any).insertId;
 
-      /* =========================
-         UPDATE STOCK
-      ========================== */
       await conn.execute(`UPDATE books SET stock = stock - ? WHERE id_book = ?`, [body.count, body.book_id]);
 
-      /* =========================
-         COMMIT
-      ========================== */
       await conn.commit();
 
       const [loanRows] = await conn.query(`SELECT * FROM loans WHERE id_loan = ?`, [insertId]);

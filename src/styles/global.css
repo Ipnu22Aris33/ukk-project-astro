@@ -43,3 +43,39 @@ html, body {
 .scrollbar-thin::-webkit-scrollbar-thumb:hover {
   background-color: rgba(var(--bs-primary-rgb), 0.85);
 }
+
+/* React Select Custom Styles */
+.react-select-container {
+  width: 100%;
+}
+
+.react-select__control {
+  border-color: #dee2e6 !important;
+  min-height: 38px !important;
+}
+
+.react-select__control:hover {
+  border-color: #adb5bd !important;
+}
+
+.react-select__control--is-focused {
+  border-color: #86b7fe !important;
+  box-shadow: 0 0 0 0.25rem rgba(13, 110, 253, 0.25) !important;
+}
+
+.react-select__menu {
+  z-index: 9999 !important;
+}
+
+.react-select__option--is-focused {
+  background-color: #e7f1ff !important;
+}
+
+.react-select__option--is-selected {
+  background-color: #0d6efd !important;
+  color: white !important;
+}
+
+.react-select__option:hover:not(.react-select__option--is-selected) {
+  background-color: #f8f9fa !important;
+}

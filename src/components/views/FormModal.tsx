@@ -1,6 +1,7 @@
 // components/views/FormModal.tsx
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
 import { useEffect, useState } from "react";
+import Select from 'react-select';
 
 /* =====================
    TYPES
@@ -21,6 +22,7 @@ export type FieldConfig = {
   options?: FieldOption[];
   defaultValue?: any;
   fullWidth?: boolean;
+  isSearchable?: boolean; // Ubah dari searchable ke isSearchable
 };
 
 type FormValue = Record<string, any>;
@@ -33,6 +35,31 @@ type FormModalProps = {
   initialValue: FormValue;
   onSubmit: (data: FormValue) => void;
   isSubmitting?: boolean;
+};
+
+// Custom styles untuk react-select agar match dengan Bootstrap
+const customSelectStyles = {
+  control: (base: any, state: any) => ({
+    ...base,
+    borderColor: state.isFocused ? '#86b7fe' : '#dee2e6',
+    boxShadow: state.isFocused ? '0 0 0 0.25rem rgba(13, 110, 253, 0.25)' : 'none',
+    '&:hover': {
+      borderColor: state.isFocused ? '#86b7fe' : '#adb5bd',
+    },
+    minHeight: '38px',
+  }),
+  menu: (base: any) => ({
+    ...base,
+    zIndex: 9999,
+  }),
+  option: (base: any, state: any) => ({
+    ...base,
+    backgroundColor: state.isSelected ? '#0d6efd' : state.isFocused ? '#e7f1ff' : 'white',
+    color: state.isSelected ? 'white' : '#212529',
+    '&:hover': {
+      backgroundColor: state.isSelected ? '#0d6efd' : '#f8f9fa',
+    },
+  }),
 };
 
 /* =====================
@@ -55,7 +82,7 @@ export default function FormModal({
     }
   }, [show, initialValue]);
 
-  const handleChange = (name: string, value: string, type?: FieldType) => {
+  const handleChange = (name: string, value: any, type?: FieldType) => {
     // Handle checkbox differently
     if (type === "checkbox") {
       setForm((prev) => ({
@@ -70,6 +97,13 @@ export default function FormModal({
     }
   };
 
+  const handleSelectChange = (name: string, selectedOption: any) => {
+    setForm((prev) => ({
+      ...prev,
+      [name]: selectedOption ? selectedOption.value : "",
+    }));
+  };
+
   const renderField = (field: FieldConfig) => {
     const value = form[field.name] ?? field.defaultValue ?? "";
 
@@ -77,39 +111,65 @@ export default function FormModal({
       required: field.required,
       placeholder: field.placeholder,
       disabled: isSubmitting,
-      onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-        if (field.type === "checkbox") {
-          handleChange(field.name, "", field.type);
-        } else {
-          handleChange(field.name, e.target.value, field.type);
-        }
-      },
     };
 
     if (field.type === "textarea") {
-      return <Form.Control as="textarea" rows={4} value={value} {...commonProps} />;
+      return (
+        <Form.Control 
+          as="textarea" 
+          rows={4} 
+          value={value} 
+          {...commonProps}
+          onChange={(e: React.ChangeEvent<HTMLTextAreaElement>) => {
+            handleChange(field.name, e.target.value, field.type);
+          }}
+        />
+      );
     }
 
     if (field.type === "select") {
+      // Find selected option
+      const selectedOption = field.options?.find(opt => opt.value === value);
+      
       return (
-        <Form.Select value={value} {...commonProps}>
-          <option value="" disabled>
-            -- Pilih --
-          </option>
-          {field.options?.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </Form.Select>
+        <Select
+          options={field.options}
+          value={selectedOption}
+          onChange={(selected) => handleSelectChange(field.name, selected)}
+          isSearchable={field.isSearchable || false} // Enable search
+          isDisabled={isSubmitting}
+          placeholder={field.placeholder || "-- Pilih --"}
+          noOptionsMessage={() => "Tidak ada opsi"}
+          loadingMessage={() => "Memuat..."}
+          styles={customSelectStyles}
+          className="react-select-container"
+          classNamePrefix="react-select"
+        />
       );
     }
 
     if (field.type === "checkbox") {
-      return <Form.Check type="checkbox" checked={!!value} label={field.placeholder} {...commonProps} />;
+      return (
+        <Form.Check 
+          type="checkbox" 
+          checked={!!value} 
+          label={field.placeholder} 
+          {...commonProps}
+          onChange={() => handleChange(field.name, "", field.type)}
+        />
+      );
     }
 
-    return <Form.Control type={field.type ?? "text"} value={value} {...commonProps} />;
+    return (
+      <Form.Control 
+        type={field.type ?? "text"} 
+        value={value} 
+        {...commonProps}
+        onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+          handleChange(field.name, e.target.value, field.type);
+        }}
+      />
+    );
   };
 
   const handleSubmit = (e: React.FormEvent) => {
@@ -132,7 +192,7 @@ export default function FormModal({
       onHide={!isSubmitting ? onHide : undefined}
       centered
       backdrop={isSubmitting ? "static" : true}
-      size="lg" // Tambahkan size="lg" untuk form yang lebih lebar
+      size="lg"
     >
       <Form onSubmit={handleSubmit}>
         <Modal.Header closeButton={!isSubmitting}>
